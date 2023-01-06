@@ -22,6 +22,7 @@ $ cd
 Pull this repo
 ```bash
 $ git clone https://github.com/poshaw/k8s-debian.git
+$ cd k8s-debian
 ```
 
 You need to run the following as root
