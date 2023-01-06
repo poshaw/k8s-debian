@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/python3 -B
 # -*- coding: utf-8 -*-
 
 from myutils import bash
@@ -18,7 +18,7 @@ def install_git():
     bash('/usr/bin/apt upgrade -y')		
 
     # install packages
-    bash('/usr/bin/apt install -y git')		
+    bash('/usr/bin/apt install -y git openssh-server')	
 
 def configure_git():
     # set username
@@ -31,7 +31,7 @@ def configure_git():
     bash('/usr/bin/git config --global init.defaultBranch "master"')
 
 def setup_ssh_to_github():
-    sshdir = '/home/phil/.ssh'
+    sshdir = f'/home/{user}/.ssh'
     if not path.exists(sshdir):
         mkdir(sshdir)
     # bash(f'/usr/bin/cp {keydir}/* {sshdir}')

@@ -2,6 +2,8 @@ k8s-debian
 ============
 set up debian on a fresh debian 11 server
 
+* goal is to script the instalation of a k8s cluster with one master and one worker node.
+
 # Warning: This is a work in progress and should not be used in production!
 
 # Prerequisits
