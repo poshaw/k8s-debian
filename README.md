@@ -9,6 +9,6 @@ set up debian on a fresh debian server
 
 # Setup
 Download git and clone this repository
-'''bash
+```bash
 # apt update && apt install git
-'''
+```
