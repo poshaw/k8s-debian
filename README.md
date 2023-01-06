@@ -7,7 +7,7 @@ set up debian on a fresh debian 11 server
 # Prerequisits
 * fresh install of debian 11 server
 * no swap on your servers
-* one unprivleged user account that will join the sudo group
+* one user account that will join the sudo group
 
 # Setup
 Download git and clone this repository
