@@ -1,0 +1,5 @@
+# /etc/environment
+HISTSIZE=-1
+HISTFILESIZE=-1
+VISUAL='nvim'
+EDITOR='nvim'
