@@ -34,4 +34,5 @@ bash('/usr/bin/git config --global user.name')
 bash('/usr/bin/git config --global user.email "poadshaw@gmail.com"')		
 bash('/usr/bin/git config --global user.email')		
 
+# name default branch for new repos
 bash('/usr/bin/git config --global init.defaultBranch "master"')

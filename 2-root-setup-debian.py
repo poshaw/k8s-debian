@@ -1,13 +1,10 @@
 #! /usr/bin/python3 -B
 
 from getpass import getpass
+from pwd import getpwname
 from shlex import split
 from shutil import copy as shutilcopy
 from subprocess import Popen, PIPE
-
-user = 'phil'
-# password = getpass(prompt = 'Enter root password: ')
-# password = bytes(password, 'utf-8')
 
 def bash(command, *, input=None, stdin=None, stdout=None, stderr=None):
     if input is not None:
@@ -18,6 +15,14 @@ def bash(command, *, input=None, stdin=None, stdout=None, stderr=None):
     p.wait()
     if outs is not None:
         return outs.decode('utf-8')[:-1]
+
+user = 'phil'
+try:
+    getpwname(user)
+except KeyError:
+
+# password = getpass(prompt = 'Enter root password: ')
+# password = bytes(password, 'utf-8')
 
 # update the system
 bash('/usr/bin/apt update')		
