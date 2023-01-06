@@ -2,6 +2,8 @@ k8s-debian
 ============
 set up debian on a fresh debian 11 server
 
+# Warning: This is a work in progress and should not be used in production!
+
 # Prerequisits
 * fresh install of debian 11 server
 * no swap on your servers
