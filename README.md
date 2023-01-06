@@ -12,23 +12,23 @@ set up debian on a fresh debian 11 server
 # Setup
 Download git and clone this repository
 ```bash
- # apt update && apt install git
+-# apt update && apt install git
 ```
 
 Become non-privilaged user
 ```bash
- # su <user>
- $ cd
+-# su <user>
+-$ cd
 ```
 
 Pull this repo
 ```bash
- $ git clone https://github.com/poshaw/k8s-debian.git
- $ cd k8s-debian
+-$ git clone https://github.com/poshaw/k8s-debian.git
+-$ cd k8s-debian
 ```
 
 You need to run the following as root
 ```bash
- $ exit
- # ./2-root-setup-debian.py
+-$ exit
+-# ./2-root-setup-debian.py
 ```

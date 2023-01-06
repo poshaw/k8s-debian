@@ -1,38 +1,41 @@
-#! /usr/bin/python3 -B
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
 
-from getpass import getpass
+from myutils import bash
 from shlex import split
-from shutil import copy as shutilcopy
-from subprocess import Popen, PIPE
+from sys import exit argv
 
-user = 'phil'
-# password = getpass(prompt = 'Enter root password: ')
-# password = bytes(password, 'utf-8')
+user = 'poshaw'
+email = 'poadshaw@gmail.com'
 
-def bash(command, *, input=None, stdin=None, stdout=None, stderr=None):
-    if input is not None:
-        stdin=PIPE
-    command = split(command)
-    p = Popen(command, stdin=stdin, stdout=stdout, stderr=stderr)
-    outs, errs = p.communicate(input)
-    p.wait()
-    if outs is not None:
-        return outs.decode('utf-8')[:-1]
+def install_git():
+	# update the system
+	bash('/usr/bin/apt update')		
+	bash('/usr/bin/apt upgrade -y')		
 
-# update the system
-bash('/usr/bin/apt update')		
-bash('/usr/bin/apt upgrade -y')		
+	# install packages
+	bash('/usr/bin/apt install -y git')		
 
-# install packages
-bash('/usr/bin/apt install -y git')		
+def configure_git():
+	# set username
+	bash('/usr/bin/git config --global user.name "poshaw"')		
 
-# set username
-bash('/usr/bin/git config --global user.name "poshaw"')		
-bash('/usr/bin/git config --global user.name')		
+	# set email
+	bash('/usr/bin/git config --global user.email "poadshaw@gmail.com"')		
 
-# set email
-bash('/usr/bin/git config --global user.email "poadshaw@gmail.com"')		
-bash('/usr/bin/git config --global user.email')		
+	# name default branch for new repos
+	bash('/usr/bin/git config --global init.defaultBranch "master"')
 
-# name default branch for new repos
-bash('/usr/bin/git config --global init.defaultBranch "master"')
+def main(args):
+	install_git()
+	configure_git()
+	return 0
+
+
+
+
+
+
+
+if __name__ == "__main__":
+	sys.exit(main(sys.argv[1:]))
