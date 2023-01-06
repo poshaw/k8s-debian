@@ -1,9 +1,9 @@
-#! /usr/bin/python3
+poadshaw@gmail.com#! /usr/bin/python3
 # -*- coding: utf-8 -*-
 
 from myutils import bash
 from shlex import split
-from sys import exit argv
+from sys import exit, argv
 
 user = 'poshaw'
 email = 'poadshaw@gmail.com'
@@ -18,10 +18,10 @@ def install_git():
 
 def configure_git():
 	# set username
-	bash('/usr/bin/git config --global user.name "poshaw"')		
+	bash(f'/usr/bin/git config --global user.name "{user}"')		
 
 	# set email
-	bash('/usr/bin/git config --global user.email "poadshaw@gmail.com"')		
+	bash('/usr/bin/git config --global user.email "{email}"')		
 
 	# name default branch for new repos
 	bash('/usr/bin/git config --global init.defaultBranch "master"')
@@ -32,4 +32,4 @@ def main(args):
 	return 0
 
 if __name__ == "__main__":
-	sys.exit(main(sys.argv[1:]))
+	exit(main(argv[1:]))
