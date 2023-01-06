@@ -21,7 +21,7 @@ def configure_git():
 	bash(f'/usr/bin/git config --global user.name "{user}"')		
 
 	# set email
-	bash('/usr/bin/git config --global user.email "{email}"')		
+	bash(f'/usr/bin/git config --global user.email "{email}"')		
 
 	# name default branch for new repos
 	bash('/usr/bin/git config --global init.defaultBranch "master"')
