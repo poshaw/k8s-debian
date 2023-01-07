@@ -1,4 +1,5 @@
 #! /usr/bin/python3 -B
+# -*- coding: utf-8 -*-
 
 from getpass import getpass
 from myutils import bash
@@ -6,6 +7,7 @@ from os import chmod
 from pwd import getpwname
 from shutil import copy as shutilcopy
 from subprocess import PIPE
+from sys import exit, argv
 
 user = 'phil'
 try:
@@ -48,3 +50,9 @@ with open('/etc/default/grub', 'w') as file:
     file.writelines(text)
 
 bash('/usr/sbin/update-grub')		
+
+def main(args):
+    return 0
+
+if __name__ == "__main__":
+    exit(main(argv[1:]))
