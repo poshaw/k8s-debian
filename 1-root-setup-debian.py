@@ -1,28 +1,21 @@
 #! /usr/bin/python3 -B
 
 from getpass import getpass
+from myutils import bash
+from os import chmod
 from pwd import getpwname
-from shlex import split
 from shutil import copy as shutilcopy
-from subprocess import Popen, PIPE
-
-def bash(command, *, input=None, stdin=None, stdout=None, stderr=None):
-    if input is not None:
-        stdin=PIPE
-    command = split(command)
-    p = Popen(command, stdin=stdin, stdout=stdout, stderr=stderr)
-    outs, errs = p.communicate(input)
-    p.wait()
-    if outs is not None:
-        return outs.decode('utf-8')[:-1]
+from subprocess import PIPE
 
 user = 'phil'
 try:
     getpwname(user)
 except KeyError:
+    # TODO create user
+    pass
 
-# password = getpass(prompt = 'Enter root password: ')
-# password = bytes(password, 'utf-8')
+password = getpass(prompt = 'Enter root password: ')
+password = bytes(password, 'utf-8')
 
 # update the system
 bash('/usr/bin/apt update')		
@@ -33,11 +26,11 @@ bash('/usr/bin/apt install -y sudo htop git python3-pip psmisc neovim curl opens
 
 # set up environment variables
 shutilcopy('/mnt/shared/environment', '/etc/')
-bash('/usr/bin/chmod 0644 /etc/environment')		
+chmod('/etc/environment',0o644)
 
 # modify user
-bash('/usr/sbin/usermod -a -G sudo,vboxsf phil')		
-epwd = '$y$j9T$kClTc051lMiQ3YJHoyNhY0$Xv0m9Bc6kntTwerKAIH0LujrvWFkrxtsxFJm1o5v4e0'
+bash(f'/usr/sbin/usermod -a -G sudo,vboxsf {user}')		
+epwd = '$6$djg0mn/uDqZkGIFH$nizpdm1cChbWrMd2aNU3cRE6XeQOUu1gigMCPL/BnjJl1gbO9rgxn3EtKkPRx3Im6V/.oMG5TWGGcqgghRiwy0'
 epwd = bytes(f'{user}:{epwd}', 'utf-8')
 bash('/usr/sbin/chpasswd --encrypted', input=epwd)
 
