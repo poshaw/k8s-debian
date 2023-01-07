@@ -30,6 +30,7 @@ chmod('/etc/environment',0o644)
 
 # modify user
 bash(f'/usr/sbin/usermod -a -G sudo,vboxsf {user}')		
+# get hash via $ mkpasswd -m sha512crypt mypassword
 epwd = '$6$djg0mn/uDqZkGIFH$nizpdm1cChbWrMd2aNU3cRE6XeQOUu1gigMCPL/BnjJl1gbO9rgxn3EtKkPRx3Im6V/.oMG5TWGGcqgghRiwy0'
 epwd = bytes(f'{user}:{epwd}', 'utf-8')
 bash('/usr/sbin/chpasswd --encrypted', input=epwd)
