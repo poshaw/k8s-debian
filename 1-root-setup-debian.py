@@ -16,9 +16,6 @@ except KeyError:
     # TODO create user
     pass
 
-password = getpass(prompt = 'Enter root password: ')
-password = bytes(password, 'utf-8')
-
 # update the system
 bash('/usr/bin/apt update')		
 bash('/usr/bin/apt upgrade -y')		
@@ -27,7 +24,7 @@ bash('/usr/bin/apt upgrade -y')
 bash('/usr/bin/apt install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
 
 # set up environment variables
-shutilcopy('/mnt/shared/environment', '/etc/')
+shutilcopy('environment', '/etc/')
 chmod('/etc/environment',0o644)
 
 # modify user
