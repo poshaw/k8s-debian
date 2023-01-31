@@ -1,4 +1,5 @@
-#! /usr/bin/python3 -B
+#! /usr/bin/env python
+# coding utf-8
 
 import getpass
 from os import mkdir, path
