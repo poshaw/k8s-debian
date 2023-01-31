@@ -1,7 +1,23 @@
 #! /usr/bin/env python
-# coding utf-8
+# coding: utf-8
+
+"""
+    This script sets up k8s on a mostly fresh install of Debian 11
+
+    execution command:
+    $ ./2-setup-k8s.py
+
+    Pre-requisits on system: sudo curl openssh-server		
+
+    This script should be run as a user with sudo privilages
+    on the master server.  master should be able to ssh into
+    worker server using passwordless ssh key-pair
+    
+    Ensure "worker" and "master" are named appropriately
+"""
 
 import getpass
+from myutils import bash
 from os import mkdir, path
 from re import sub
 from shlex import split
@@ -18,17 +34,6 @@ kubeconf = path.join(path.expanduser('~'), '.kube', 'config')
 yamldir = path.join(path.expanduser('~'), 'yaml')
 calico =  path.join(yamldir, 'calico.yaml')
 sudo = '/usr/bin/sudo -S'
-
-def bash(command, *, stdin=None, stdout=None, stderr=None):
-    command = split(command)
-    p = Popen(command, stdin=stdin, stdout=stdout, stderr=stderr)
-    if stdin is not None:
-        outs, errs = p.communicate(input=password)
-    else:
-        outs, errs = p.communicate()
-    p.wait()
-    if outs is not None:
-        return outs.decode('utf-8')[:-1]
 
 def cleanup():
     # reset worker
@@ -77,6 +82,7 @@ while i < len(text):
         text[i] = text[i].replace('# ','')
         text[i+1] = text[i+1].replace('# ','')
         text[i+1] = sub(validip, CIDR[:-3], text[i+1])
+        break
     i += 1
 
 with open(calico, 'w') as file:
