@@ -19,6 +19,7 @@ from subprocess import PIPE
 from sys import exit, argv
 
 user = 'phil'
+
 try:
     getpwname(user)
 except KeyError:
@@ -32,6 +33,30 @@ def update():
 
     # install packages
     bash('/usr/bin/apt install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
+
+def hostname():
+    master = 'km1 km1.lan'
+    worker = 'kw1 kw1.lan'
+    with open('/etc/hostname', 'w') as file:
+        file.write("km1\n")
+
+    with open('/etc/hosts', 'r') as file:
+        text = file.readlines()
+
+    for i, line in enumerate(text):
+        if '127.0.1.1' in line:
+            text[i] = f'127.0.1.1\t{master}\n'
+            break
+
+    text.append('\n')
+    text.appned(f'192.168.56.50\t{master}\n')
+    text.appned(f'192.168.56.60\t{worker}\n')
+
+    with open('/etc/hosts', 'w') as file:
+        file.writelines(text)
+
+def networkinterface():
+    pass
 
 def envvar():
     # set up environment variables
@@ -64,6 +89,8 @@ def grub():
 
 def main(args):
     update()
+    hostname()
+    networkinterface()
     envvar()
     user()
     grub()
