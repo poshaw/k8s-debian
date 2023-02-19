@@ -137,6 +137,19 @@ def user():
     bash('/usr/sbin/chpasswd --encrypted', input=epwd)
 
 def grub():
+    """
+    Configures the GRUB bootloader.
+    
+    This function modifies the configuration file for the GRUB bootloader to reduce the boot timeout
+    from 5 seconds to 0 seconds, which will speed up the boot process. The 'update-grub' command is
+    then used to update the GRUB configuration file based on the changes made.
+    Note that this function requires superuser privileges to run, so it should be executed as a
+    privileged user or with the 'sudo' command.
+    Raises:
+        subprocess.CalledProcessError: If the 'update-grub' command fails or returns a non-zero
+        exit status.
+    """
+
     # fix grub timeout
     with open('/etc/default/grub', 'r') as file:
         text = file.readlines()
