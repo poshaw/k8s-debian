@@ -132,7 +132,7 @@ def envvar():
     """
     # set up environment variables
     shutilcopy('environment', '/etc/')
-    chmod('/etc/environment',0o644)
+    os.chmod('/etc/environment',0o644)
 
 def user():
     """
