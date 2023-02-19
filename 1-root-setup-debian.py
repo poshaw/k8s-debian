@@ -58,7 +58,7 @@ except ModuleNotFoundError:
     print("psutil is not installed. Installing now...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
     print("psutil installed. Restarting script...")
-    os.execv(sys.executable, [sys.executable] + sys.argv)
+    os.execv(__file__, sys.argv)
     
 def hostname():
     """
@@ -84,7 +84,7 @@ def hostname():
                  ("kw1", "192.168.56.60")]
     domain = "lan"
     with open('/etc/hostname', 'w') as file:
-        file.write("computers[0][0]\n")
+        file.write(f"{computers[0][0]}\n")
 
     with open('/etc/hosts', 'r') as file:
         text = file.readlines()
@@ -96,7 +96,7 @@ def hostname():
 
     text.append('\n')
     for computer in computers:
-        text.appned(f'{computer[1]}\t{computer[0]} {computer[0]}.{domain}\n')
+        text.append(f'{computer[1]}\t{computer[0]} {computer[0]}.{domain}\n')
 
     with open('/etc/hosts', 'w') as file:
         file.writelines(text)
