@@ -13,21 +13,11 @@
 from myutils import bash
 import os
 import pwd
+from shlex import quote
 import shutil
 import subprocess
 import sys
 
-if os.geteuid() != 0:
-    print("This script must be run as a privileged user or with the sudo command.")
-    exit(1)
-
-user = 'phil'
-
-try:
-    pwd.getpwname(user)
-except KeyError:
-    # TODO create user
-    pass
 
 def update():
     """
@@ -48,23 +38,32 @@ def update():
     Raises:
         subprocess.CalledProcessError: If the 'apt' command fails or returns a non-zero exit status.
     """
-    # implementation here
 
     apt = shutil.which('apt')
     bash(f'{apt} update')		
     bash(f'{apt} upgrade -y')		
-
-    # install packages
     bash(f'{apt} install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
 
-try:
-    import psutil
-except ModuleNotFoundError:
-    print("psutil is not installed. Installing now...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
-    print("psutil installed. Restarting script...")
-    os.execv(__file__, sys.argv)
+def networkinterface():
+    try:
+        import psutil
+    except ModuleNotFoundError:
+        print("psutil is not installed. Installing now...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
+        print("psutil installed. Restarting script...")
+        os.execv(__file__, sys.argv)
     
+    def list_interfaces_without_ip():
+        interfaces = psutil.net_if_addrs()
+        result = []
+        for interface in interfaces:
+            if not any(addr.family == 2 for addr in interfaces[interface]):
+                result.append(interface)
+        return result
+    
+    interfaces_without_ip = list_interfaces_without_ip()
+    print(interfaces_without_ip)
+
 def hostname():
     """
     Configures the hostname and IP address for the local machine by modifying the
@@ -82,59 +81,42 @@ def hostname():
         None
     """
     
-    # check that /etc/hosts exists and that 127.0.0.1 is set to localhost
-    if not os.path.exists('/etc/hosts'):
-        with open('/etc/hosts', 'w') as f:
-            f.write('127.0.0.1\tlocalhost\n')
-
-    else:
-        with open('/etc/hosts', 'r') as f:
-            lines = f.readlines()
-
-        found = False
-        for line in lines:
-            if '127.0.0.1' in line and 'localhost' in line:
-                found = True
-                break
-
-        if not found:
-            with open('/etc/hosts', 'a') as f:
-                f.write('127.0.0.1\tlocalhost\n')
-
-    
+    # set up computers list
     computers = [("km1", "192.168.56.50"),
                  ("kw1", "192.168.56.60")]
     domain = "lan"
+
+    # Write the hostname to /etc/hostname
     with open('/etc/hostname', 'w') as file:
         file.write(f"{computers[0][0]}\n")
 
-    with open('/etc/hosts', 'r') as file:
-        text = file.readlines()
+    # Set up the /etc/hosts file
+    with open('/etc/hosts', 'r') as f:
+        lines = f.readlines()
 
-    for i, line in enumerate(text):
-        if '127.0.1.1' in line:
-            text[i] = f'127.0.1.1\t{computers[0][0]} {computers[0][0]}.{domain}\n'
+    # check if localhost is set to 127.0.0.1
+    found = False
+    for line in lines:
+        if '127.0.0.1' in line and 'localhost' in line:
+            found = True
             break
 
-    text.append('\n')
+    # Add the localhost mapping if it doesn't exist
+    if not found:
+        with open('/etc/hosts', 'a') as f:
+            f.write('127.0.0.1\tlocalhost\n')
+
+    # Set up the mappings for all machines in the computers list
+    entries = []
     for computer in computers:
-        text.append(f'{computer[1]}\t{computer[0]} {computer[0]}.{domain}\n')
+        entry = f'{computer[1]}\t{computer[0]} {computer[0]}.{domain}'
+        entries.append(entry)
 
-    with open('/etc/hosts', 'w') as file:
-        file.writelines(text)
+   # Add the entries into the /etc/hosts file 
+    with open('/etc/hosts', 'a') as f:
+        f.write('\n')
+        f.write('\n'.join(entries))
 
-def networkinterface():
-    
-    def list_interfaces_without_ip():
-        interfaces = psutil.net_if_addrs()
-        result = []
-        for interface in interfaces:
-            if not any(addr.family == 2 for addr in interfaces[interface]):
-                result.append(interface)
-        return result
-    
-    interfaces_without_ip = list_interfaces_without_ip()
-    print(interfaces_without_ip)
 
 
 def envvar():
@@ -153,7 +135,7 @@ def envvar():
     shutil.copy('environment', '/etc/')
     os.chmod('/etc/environment',0o644)
 
-def user():
+def setupuser(user):
     """
     Modifies the user account by adding it to the 'sudo' and 'data' groups, and sets the user password.
     
@@ -167,7 +149,7 @@ def user():
     with the 'sudo' command.
     """
 
-    # Check if the current user is a member of the sudo group
+    # Check if the current user is a member of the sudo, or data group
     is_sudo = False
     is_data = False
     groups = subprocess.check_output(['groups', user]).decode().strip().split()
@@ -236,11 +218,23 @@ def main(args):
         int: The exit code of the program. Returns 0 upon successful completion.
     """
 
+    if os.geteuid() != 0:
+        print("This script must be run as a privileged user or with the sudo command.")
+        exit(1)
+
+    user = quote('phil')
+
+    try:
+        pwd.getpwname(user)
+    except KeyError:
+        useradd = shutil.which('useradd')
+        bash(f'{useradd} -m -s /bin/bash {user}')
+
     update()
-    hostname()
     networkinterface()
+    hostname()
     envvar()
-    user()
+    setupuser(user)
     grub()
     return 0
 
