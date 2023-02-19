@@ -30,8 +30,23 @@ def update():
     """
     Updates the package list and upgrades all installed packages to their latest versions.
 
-    This function uses the 'apt' package manager to update the system.  It first updated the package list
+    This function uses the 'apt' package manager to update the system. It first updates the package
+    list by downloading the latest package information from the software repositories. Then, it
+    upgrades all currently installed packages to their latest versions. The '-y' flag is used to
+    automatically answer 'yes' to all prompts.
+
+    This function installs some commonly used packages such as 'sudo', 'htop', 'git', 'python3-pip',
+    'psmisc', 'neovim', 'curl', and 'openssh-server'. You can customize the list of packages to
+    install by modifying the 'bash' command inside this function.
+
+    Note that this function requires superuser privileges to run, so it should be executed as a
+    privileged user or with the 'sudo' command.
+
+    Raises:
+        subprocess.CalledProcessError: If the 'apt' command fails or returns a non-zero exit status.
     """
+    # implementation here
+
     bash('/usr/bin/apt update')		
     bash('/usr/bin/apt upgrade -y')		
 
