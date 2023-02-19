@@ -27,7 +27,11 @@ except KeyError:
     pass
 
 def update():
-    # update the system
+    """
+    Updates the package list and upgrades all installed packages to their latest versions.
+
+    This function uses the 'apt' package manager to update the system.  It first updated the package list
+    """
     bash('/usr/bin/apt update')		
     bash('/usr/bin/apt upgrade -y')		
 
@@ -35,22 +39,23 @@ def update():
     bash('/usr/bin/apt install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
 
 def hostname():
-    master = 'km1 km1.lan'
-    worker = 'kw1 kw1.lan'
+    computers = [("km1", "192.168.56.50"),
+                 ("kw1", "192.168.56.60")]
+    domain = "lan"
     with open('/etc/hostname', 'w') as file:
-        file.write("km1\n")
+        file.write("computers[0][0]\n")
 
     with open('/etc/hosts', 'r') as file:
         text = file.readlines()
 
     for i, line in enumerate(text):
         if '127.0.1.1' in line:
-            text[i] = f'127.0.1.1\t{master}\n'
+            text[i] = f'127.0.1.1\t{computers[0][0]} {computers[0][0]}.{domain}\n'
             break
 
     text.append('\n')
-    text.appned(f'192.168.56.50\t{master}\n')
-    text.appned(f'192.168.56.60\t{worker}\n')
+    for computer in computers:
+        text.appned(f'{computer[1]}\t{computer[0]} {computer[0]}.{domain}\n')
 
     with open('/etc/hosts', 'w') as file:
         file.writelines(text)
