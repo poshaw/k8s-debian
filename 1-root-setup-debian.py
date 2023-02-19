@@ -94,14 +94,8 @@ def hostname():
         lines = f.readlines()
 
     # check if localhost is set to 127.0.0.1
-    found = False
-    for line in lines:
-        if '127.0.0.1' in line and 'localhost' in line:
-            found = True
-            break
-
-    # Add the localhost mapping if it doesn't exist
-    if not found:
+    if not any('127.0.0.1' in line and 'localhost' in line for line in lines):
+        # Add the localhost mapping if it doesn't exist
         with open('/etc/hosts', 'a') as f:
             f.write('127.0.0.1\tlocalhost\n')
 
