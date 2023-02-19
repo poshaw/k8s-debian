@@ -10,19 +10,17 @@
     hashed-password
 """
 
-from getpass import getpass
 from myutils import bash
 import os
-import psutil
-from pwd import getpwname
-from shutil import copy as shutilcopy
+import pwd
+import shutil
 import subprocess
 import sys
 
 user = 'phil'
 
 try:
-    getpwname(user)
+    pwd.getpwname(user)
 except KeyError:
     # TODO create user
     pass
@@ -56,7 +54,7 @@ def update():
 
 try:
     import psutil
-except ImportError:
+except ModuleNotFoundError:
     print("psutil is not installed. Installing now...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
     print("psutil installed. Restarting script...")
@@ -81,7 +79,6 @@ def hostname():
     Returns:
         None
     """
-    # implementation here
 
     computers = [("km1", "192.168.56.50"),
                  ("kw1", "192.168.56.60")]
@@ -131,7 +128,7 @@ def envvar():
         PermissionError: If the script does not have permission to copy the `environment` file to `/etc/` or to change its permissions.
     """
     # set up environment variables
-    shutilcopy('environment', '/etc/')
+    shutil.copy('environment', '/etc/')
     os.chmod('/etc/environment',0o644)
 
 def user():
@@ -208,4 +205,4 @@ def main(args):
     return 0
 
 if __name__ == "__main__":
-    exit(main(argv[1:]))
+    sys.exit(main(sys.argv[1:]))
