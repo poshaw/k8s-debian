@@ -12,12 +12,12 @@
 
 from getpass import getpass
 from myutils import bash
-from os import chmod
+import os
 import psutil
 from pwd import getpwname
 from shutil import copy as shutilcopy
-from subprocess import PIPE
-from sys import exit, argv
+import subprocess
+import sys
 
 user = 'phil'
 
@@ -54,6 +54,14 @@ def update():
     # install packages
     bash('/usr/bin/apt install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
 
+try:
+    import psutil
+except ImportError:
+    print("psutil is not installed. Installing now...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
+    print("psutil installed. Restarting script...")
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+    
 def hostname():
     """
     Configures the hostname and IP address for the local machine by modifying the
