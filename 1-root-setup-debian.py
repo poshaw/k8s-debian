@@ -13,6 +13,7 @@
 from getpass import getpass
 from myutils import bash
 from os import chmod
+import psutil
 from pwd import getpwname
 from shutil import copy as shutilcopy
 from subprocess import PIPE
@@ -96,7 +97,18 @@ def hostname():
         file.writelines(text)
 
 def networkinterface():
-    pass
+    
+    def list_interfaces_without_ip():
+        interfaces = psutil.net_if_addrs()
+        result = []
+        for interface in interfaces:
+            if not any(addr.family == 2 for addr in interfaces[interface]):
+                result.append(interface)
+        return result
+    
+    interfaces_without_ip = list_interfaces_without_ip()
+    print(interfaces_without_ip)
+
 
 def envvar():
     """
