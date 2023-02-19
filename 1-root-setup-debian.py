@@ -15,7 +15,6 @@ import os
 import pwd
 from shlex import quote
 import shutil
-import subprocess
 import sys
 
 
@@ -49,7 +48,7 @@ def networkinterface():
         import psutil
     except ModuleNotFoundError:
         print("psutil is not installed. Installing now...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
+        bash(f'{sys.executable} -m pip install psutil')
         print("psutil installed. Restarting script...")
         os.execv(__file__, sys.argv)
     
@@ -152,7 +151,7 @@ def setupuser(user):
     # Check if the current user is a member of the sudo, or data group
     is_sudo = False
     is_data = False
-    groups = subprocess.check_output(['groups', user]).decode().strip().split()
+    groups = bash(f'groups {user}').strip().split()
     for group in groups:
         if group == 'sudo':
             is_sudo = True
