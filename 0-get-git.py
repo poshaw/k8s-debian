@@ -5,7 +5,7 @@ from myutils import bash
 from os import chmod, listdir, mkdir, path
 from shlex import split
 from shutil import copytree
-from sys import exit, argv
+from subprocess import PIPE
 from sys import exit, argv
 
 user = 'phil'
