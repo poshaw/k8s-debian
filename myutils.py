@@ -1,18 +1,17 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
+from subprocess import run, PIPE
 from shlex import split
-from subprocess import Popen, PIPE
 
-def bash(command, *, input=None, stdin=None, stdout=None, stderr=None):
+def bash(command, *, input=None):
     if input is not None:
-        stdin=PIPE
+        stdin = PIPE
         if not isinstance(input, bytes):
             raise TypeError('input must be type: bytes')
-    command = split(command)
-    p = Popen(command, stdin=stdin, stdout=stdout, stderr=stderr)
-    outs, errs = p.communicate(input)
-    p.wait()
-    if outs is not None:
-        outs = outs.decode('utf-8').rstrip()
-        return outs
+    else:
+        stdin = None
+    
+    # Run the command and capture the output
+    result = run(split(command), input=input, stdin=stdin, stdout=PIPE, stderr=PIPE, text=True, check=True)
+    return result.stdout.rstrip()
