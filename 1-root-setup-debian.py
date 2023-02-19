@@ -79,7 +79,27 @@ def hostname():
     Returns:
         None
     """
+    
+    # check that /etc/hosts exists and that 127.0.0.1 is set to localhost
+    if not os.path.exists('/etc/hosts'):
+        with open('/etc/hosts', 'w') as f:
+            f.write('127.0.0.1\tlocalhost\n')
 
+    else:
+        with open('/etc/hosts', 'r') as f:
+            lines = f.readlines()
+
+        found = False
+        for line in lines:
+            if '127.0.0.1' in line and 'localhost' in line:
+                found = True
+                break
+
+        if not found:
+            with open('/etc/hosts', 'a') as f:
+                f.write('127.0.0.1\tlocalhost\n')
+
+    
     computers = [("km1", "192.168.56.50"),
                  ("kw1", "192.168.56.60")]
     domain = "lan"
