@@ -54,6 +54,26 @@ def update():
     bash('/usr/bin/apt install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
 
 def hostname():
+    """
+    Configures the hostname and IP address for the local machine by modifying the
+    '/etc/hostname' and '/etc/hosts' files.
+
+    This function sets the hostname of the machine by writing the first hostname-IP
+    pair from the 'computers' list to the '/etc/hostname' file. It then sets up the
+    IP address mappings for all machines in the 'computers' list in the '/etc/hosts'
+    file. 
+
+    Note that this function assumes that the '/etc/hosts' file already exists and
+    contains the default '127.0.0.1' loopback mapping.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+    # implementation here
+
     computers = [("km1", "192.168.56.50"),
                  ("kw1", "192.168.56.60")]
     domain = "lan"
