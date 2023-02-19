@@ -165,6 +165,25 @@ def user():
     with the 'sudo' command.
     """
 
+    # Check if the current user is a member of the sudo group
+    is_sudo = False
+    is_data = False
+    groups = subprocess.check_output(['groups', user]).decode().strip().split()
+    for group in groups:
+        if group == 'sudo':
+            is_sudo = True
+        if group == 'data':
+            is_data = True
+
+    # If the user is not a member of the sudo group, add them to the group
+    if not is_sudo:
+        subprocess.check_call(['sudo', 'usermod', '-aG', 'sudo', user])
+    
+    # If the user is not a member of the data group, add them to the group
+    if not is_data:
+        subprocess.check_call(['sudo', 'usermod', '-aG', 'data', user])
+    
+    
     # modify user
     groups = "sudo,data"
     bash(f'/usr/sbin/usermod -a -G {groups} {user}')		
