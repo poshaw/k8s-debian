@@ -19,7 +19,15 @@ def bash(command, *, input=None, stdin=None, stdout=None, stderr=None):
 
     Raises:
         TypeError: If input is provided but is not a bytes object.
+
+    Usage:
+        >>> output = bash('ls -la')
+        >>> print(output)
+
+    This function is intended for use in a Unix-like environment with a Bash shell.
+    For more information, see the project documentation at https://github.com/myproject/mymodule.
     """
+
 
     if input is not None:
         stdin=PIPE
