@@ -46,11 +46,12 @@ def update():
     """
     # implementation here
 
-    bash('/usr/bin/apt update')		
-    bash('/usr/bin/apt upgrade -y')		
+    apt = shutil.which('apt')
+    bash(f'{apt} update')		
+    bash(f'{apt} upgrade -y')		
 
     # install packages
-    bash('/usr/bin/apt install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
+    bash(f'{apt} install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
 
 try:
     import psutil
@@ -176,21 +177,19 @@ def user():
             is_data = True
 
     # If the user is not a member of the sudo group, add them to the group
+    usermod = shutil.which('usermod')
     if not is_sudo:
-        subprocess.check_call(['sudo', 'usermod', '-aG', 'sudo', user])
+        bash(f'{usermod} -aG sudo {user}')
     
     # If the user is not a member of the data group, add them to the group
     if not is_data:
-        subprocess.check_call(['sudo', 'usermod', '-aG', 'data', user])
-    
-    
-    # modify user
-    groups = "sudo,data"
-    bash(f'/usr/sbin/usermod -a -G {groups} {user}')		
+        bash(f'{usermod} -aG data {user}')
+    	
     # get hash via $ mkpasswd -m sha512crypt mypassword
     epwd = '$6$djg0mn/uDqZkGIFH$nizpdm1cChbWrMd2aNU3cRE6XeQOUu1gigMCPL/BnjJl1gbO9rgxn3EtKkPRx3Im6V/.oMG5TWGGcqgghRiwy0'
     epwd = bytes(f'{user}:{epwd}', 'utf-8')
-    bash('/usr/sbin/chpasswd --encrypted', input=epwd)
+    chpasswd = shutil.which('chpasswd')
+    bash(f'{chpasswd} --encrypted', input=epwd)
 
 def grub():
     """
@@ -218,7 +217,8 @@ def grub():
     with open('/etc/default/grub', 'w') as file:
         file.writelines(text)
 
-    bash('/usr/sbin/update-grub')		
+    update-grub = shutil.which('update-grub')
+    bash(f'{update-grub}')
 
 def main(args):
     def main(args):
