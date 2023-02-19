@@ -4,6 +4,23 @@ from shlex import split
 from subprocess import Popen, PIPE
 
 def bash(command, *, input=None, stdin=None, stdout=None, stderr=None):
+    """
+    Execute a shell command and return its output as a string.
+
+    Args:
+        command (str): The command to execute.
+        input (bytes, optional): The input to feed to the command's stdin. Defaults to None.
+        stdin (file-like object, optional): The stdin to use for the command. Defaults to None.
+        stdout (file-like object, optional): The stdout to use for the command. Defaults to None.
+        stderr (file-like object, optional): The stderr to use for the command. Defaults to None.
+
+    Returns:
+        str: The output of the command, with trailing newline characters removed.
+
+    Raises:
+        TypeError: If input is provided but is not a bytes object.
+    """
+
     if input is not None:
         stdin=PIPE
         if not isinstance(input, bytes):
