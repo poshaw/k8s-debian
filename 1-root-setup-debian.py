@@ -99,11 +99,35 @@ def networkinterface():
     pass
 
 def envvar():
+    """
+    Sets up the environment variables for the system by copying the `environment` file to `/etc/` and setting its permissions
+    to read-only. The `environment` file contains environment variables for the system, such as `PATH`, `LANG`, and `LC_ALL`. 
+    These environment variables affect how programs run on the system and can be customized to suit specific needs. By default, 
+    this function sets up the environment variables for the current user, but you can modify the `environment` file to set up 
+    environment variables for all users on the system.
+
+    Raises:
+        FileNotFoundError: If the `environment` file does not exist in the current working directory.
+        PermissionError: If the script does not have permission to copy the `environment` file to `/etc/` or to change its permissions.
+    """
     # set up environment variables
     shutilcopy('environment', '/etc/')
     chmod('/etc/environment',0o644)
 
 def user():
+    """
+    Modifies the user account by adding it to the 'sudo' and 'data' groups, and sets the user password.
+    
+    The 'sudo' group is necessary to grant the user superuser privileges, while the 'data' group is an example
+    custom group that could be used for data-related operations. You can customize the list of groups by modifying
+    the 'groups' variable inside this function.
+    The user password is set by passing the hashed password to the 'chpasswd' command. The 'epwd' variable contains
+    a sample hashed password for the user 'phil', which you should modify with your own hashed password before running
+    the script. You can generate the hashed password using the 'mkpasswd' command on a Linux system.
+    Note that this function requires superuser privileges to run, so it should be executed as a privileged user or
+    with the 'sudo' command.
+    """
+
     # modify user
     groups = "sudo,data"
     bash(f'/usr/sbin/usermod -a -G {groups} {user}')		
