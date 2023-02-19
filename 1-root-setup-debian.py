@@ -75,9 +75,6 @@ def hostname():
     IP address mappings for all machines in the 'computers' list in the '/etc/hosts'
     file. 
 
-    Note that this function assumes that the '/etc/hosts' file already exists and
-    contains the default '127.0.0.1' loopback mapping.
-
     Parameters:
         None
 
