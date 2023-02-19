@@ -17,6 +17,10 @@ import shutil
 import subprocess
 import sys
 
+if os.geteuid() != 0:
+    print("This script must be run as a privileged user or with the sudo command.")
+    exit(1)
+
 user = 'phil'
 
 try:
