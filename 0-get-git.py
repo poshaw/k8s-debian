@@ -16,8 +16,6 @@ def install_git():
     apt = shutil.which('apt')
     bash(f'{apt} update')		
     bash(f'{apt} upgrade -y')		
-
-    # install packages
     bash(f'{apt} install -y git openssh-server')	
 
 def configure_git():
@@ -48,7 +46,7 @@ def setup_ssh_to_github():
 def main(args):
     install_git()
     configure_git()
-    setup_ssh_to_github()
+    # setup_ssh_to_github()
     return 0
 
 if __name__ == "__main__":

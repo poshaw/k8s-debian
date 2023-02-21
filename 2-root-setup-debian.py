@@ -127,7 +127,7 @@ def main(args):
         bash(f'{useradd} -m -s /bin/bash {user}')
 
     update()
-    networkInterface()
+    # networkInterface()
     hostname()
     envVar()
     setupUser(user)
