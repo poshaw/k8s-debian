@@ -89,8 +89,8 @@ def grub():
     with open('/etc/default/grub', 'w') as file:
         file.writelines(text)
 
-    update-grub = shutil.which('update-grub')
-    bash(f'{update-grub}')
+    update_grub = shutil.which('update-grub')
+    bash(f'{update_grub}')
 
 def main(args):
     # Check that script is running with root privleges
