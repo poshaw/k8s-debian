@@ -24,26 +24,6 @@ def update():
     bash(f'{apt} upgrade -y')		
     bash(f'{apt} install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
 
-def networkInterface():
-    try:
-        import psutil
-    except ModuleNotFoundError:
-        print("psutil is not installed. Installing now...")
-        bash(f'{sys.executable} -m pip install psutil')
-        print("psutil installed. Restarting script...")
-        os.execv(__file__, sys.argv)
-    
-    def list_interfaces_without_ip():
-        interfaces = psutil.net_if_addrs()
-        result = []
-        for interface in interfaces:
-            if not any(addr.family == 2 for addr in interfaces[interface]):
-                result.append(interface)
-        return result
-    
-    interfaces_without_ip = list_interfaces_without_ip()
-    print(interfaces_without_ip)
-
 def hostname():
     # set up computers list
     computers = [("km1", "192.168.56.50"),
