@@ -32,7 +32,7 @@ def main(args):
         print("This script must be run as a privileged user or with the sudo command.")
         exit(1)
 
-    install_apps():
+    install_apps()
     networkInterface()
     return 0
 
