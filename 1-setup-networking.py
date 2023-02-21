@@ -5,29 +5,31 @@ from myutils import bash
 import os
 import shutil
 import socket
-import subprocess
 import sys
 
 def hostname():
     hostname = input("Enter computer hostname: ")
+    domain = 'lan'
+
     echo = shutil.which('echo')
     with open('/etc/hostname', 'w') as f:
-        subprocess.run([echo, hostname], stdout=f)
+        f.write(hostname)
 
-def main(args):
-    # Check that script is running with root privleges
-    if os.geteuid() != 0:
-        print("This script must be run as a privileged user or with the sudo command.")
-        exit(1)
+    path = '/etc'
+    src = 'hosts'
+    dst = os.path.join(path,src)
+    shutil.copyfile(src, dst)
+    with open('/etc/hosts', 'r') as f:
+        lines = f.readlines()
 
-    hostname()
-    # networkInterface()
-    return 0
+    for i, line in enumerate(lines):
+        if '127.0.1.1' in line:
+            lines[i] = '127.0.1.1\t{hostname} {hostname}.{domain}'
+            break
 
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
-
-
+    with open('/etc/hosts', 'w') as f:
+        f.writelines(lines)
+            
 def networkInterface():
     path = '/etc/network'
     src = 'interfaces'
