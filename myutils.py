@@ -7,12 +7,8 @@ from shlex import split
 def bash(command, *, input=None):
     if input is not None:
         if not isinstance(input, bytes):
-            raise TypeError('input must be type: bytes')
-        stdin = PIPE
-        input = input.decode('utf-8')
+            input = input.encode('utf-8')
+        result = run(split(command), input=input, stdout=PIPE, stderr=PIPE, text=True, check=True)
     else:
-        stdin = None
-        
-    # Run the command and capture the output
-    result = run(split(command), input=input, stdin=stdin, stdout=PIPE, stderr=PIPE, text=True, check=True)
+        result = run(split(command), stdout=PIPE, stderr=PIPE, text=True, check=True)
     return result.stdout.rstrip()
