@@ -24,7 +24,7 @@ def hostname():
 
     for i, line in enumerate(lines):
         if '127.0.1.1' in line:
-            lines[i] = '127.0.1.1\t{hostname} {hostname}.{domain}'
+            lines[i] = f'127.0.1.1\t{hostname} {hostname}.{domain}\n'
             break
 
     with open('/etc/hosts', 'w') as f:
