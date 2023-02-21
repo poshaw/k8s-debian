@@ -1,4 +1,4 @@
-#! /usr/bin/env python3 -B
+#! /usr/bin/env -S python3 -B
 # coding: utf-8
 
 from myutils import bash
