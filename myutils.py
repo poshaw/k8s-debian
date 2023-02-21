@@ -5,14 +5,13 @@ from subprocess import run, PIPE
 from shlex import split
 
 def bash(command, *, input=None):
+    stdin = None
     if input is not None:
-        stdin = PIPE
         if not isinstance(input, bytes):
             raise TypeError('input must be type: bytes')
+        stdin = PIPE
         input = input.decode('utf-8')
-    else:
-        stdin = None
-    
+        
     # Run the command and capture the output
     result = run(split(command), input=input, stdin=stdin, stdout=PIPE, stderr=PIPE, text=True, check=True)
     return result.stdout.rstrip()
