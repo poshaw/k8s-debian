@@ -6,8 +6,7 @@ from shlex import split
 
 def bash(command, *, input=None):
     if input is not None:
-        if not isinstance(input, bytes):
-            input = input.encode('utf-8')
+        input = input.decode('utf-8') # decode the bytes to a string
         result = run(split(command), input=input, stdout=PIPE, stderr=PIPE, text=True, check=True)
     else:
         result = run(split(command), stdout=PIPE, stderr=PIPE, text=True, check=True)
