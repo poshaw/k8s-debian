@@ -11,6 +11,7 @@
 """
 
 from myutils import bash
+from grp import getgrnam
 import os
 import pwd
 from shlex import quote
@@ -64,7 +65,7 @@ def setupUser(user):
     # Check if group data exists
     groupname = "data"
     try:
-        grp.getgrnam(groupname)
+        getgrnam(groupname)
     except KeyError:
         bash(f"groupadd {groupname}")
     # Check if the current user is a member of the sudo, or data group
