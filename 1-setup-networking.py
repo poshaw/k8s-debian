@@ -9,7 +9,8 @@ import sys
 
 def hostname():
     hostname = input("Enter computer hostname: ")
-    socket.sethostname(hostname)
+    echo = shutil.which('echo')
+    bash(f'{echo} "{hostname}" > /etc/hostname')
 
     path = '/etc'
     src = 'hosts'
@@ -38,7 +39,7 @@ def main(args):
         exit(1)
 
     hostname()
-    networkInterface()
+    # networkInterface()
     return 0
 
 if __name__ == "__main__":
