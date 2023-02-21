@@ -29,6 +29,9 @@ def configure_git():
     # name default branch for new repos
     bash(f'{git} config --global init.defaultBranch "master"')
 
+    # set merge strategy
+    bash(f'{git} config --global pull.rebase false')
+
 def setup_ssh_to_github():
     sshdir = f'/home/{user}/.ssh'
     if not os.path.exists(sshdir):
