@@ -5,15 +5,28 @@ from myutils import bash
 import os
 import shutil
 import socket
+import subprocess
 import sys
 
 def hostname():
     hostname = input("Enter computer hostname: ")
     echo = shutil.which('echo')
-    bash(f'{echo} "{hostname}" > /etc/hostname')
+    with open('/etc/hostname', 'w') as f:
+        subprocess.run([echo, hostname], stdout=f)
 
-    path = '/etc'
-    src = 'hosts'
+def main(args):
+    # Check that script is running with root privleges
+    if os.geteuid() != 0:
+        print("This script must be run as a privileged user or with the sudo command.")
+        exit(1)
+
+    hostname()
+    # networkInterface()
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
+
 
 def networkInterface():
     path = '/etc/network'
