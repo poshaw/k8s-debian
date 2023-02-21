@@ -61,6 +61,12 @@ def envVar():
     os.chmod('/etc/environment',0o644)
 
 def setupUser(user):
+    # Check if group data exists
+    groupname = "data"
+    try:
+        grp.getgrnam(groupname)
+    except KeyError:
+        bash(f"groupadd {groupname}")
     # Check if the current user is a member of the sudo, or data group
     groups = bash(f'groups {user}').strip().split()
     is_sudo = 'sudo' in groups
@@ -101,7 +107,7 @@ def main(args):
     user = quote('phil')
 
     try:
-        pwd.getpwname(user)
+        pwd.getpwnam(user)
     except KeyError:
         useradd = shutil.which('useradd')
         bash(f'{useradd} -m -s /bin/bash {user}')
