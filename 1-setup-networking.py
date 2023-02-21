@@ -4,7 +4,15 @@
 from myutils import bash
 import os
 import shutil
+import socket
 import sys
+
+def hostname():
+    hostname = input("Enter computer hostname: ")
+    socket.sethostname(hostname)
+
+    path = '/etc'
+    src = 'hosts'
 
 def networkInterface():
     path = '/etc/network'
@@ -29,6 +37,7 @@ def main(args):
         print("This script must be run as a privileged user or with the sudo command.")
         exit(1)
 
+    hostname()
     networkInterface()
     return 0
 
