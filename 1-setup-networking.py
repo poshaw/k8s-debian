@@ -18,7 +18,10 @@ def networkInterface():
     src = 'enp0s8'
     dst = os.path.join(path,src)
     shutil.copyfile(src, dst)
-    bash('/etc/init.d/networking restart')	
+
+    # restart the computer
+    halt = shutil.which('halt')
+    bash(f'{halt} --reboot --force')	
 
 def main(args):
     # Check that script is running with root privleges
