@@ -9,6 +9,7 @@ def bash(command, *, input=None):
         stdin = PIPE
         if not isinstance(input, bytes):
             raise TypeError('input must be type: bytes')
+        input = input.decode('utf-8')
     else:
         stdin = None
     
