@@ -25,7 +25,6 @@ from subprocess import Popen, PIPE
 
 user = getpass.getuser()
 password = getpass.getpass(prompt = 'Enter sudo password: ')
-password = bytes(password, 'utf-8')
 worker = 'kw1.lan'
 master = 'km1.lan'
 CIDR='10.100.0.0/16'
@@ -40,20 +39,20 @@ def cleanup():
     bash(f'/usr/bin/ssh {user}@{worker} "{sudo} /usr/bin/kubeadm reset --force"', stdin=PIPE)
 
     # reset master
-    bash(f'{sudo} /usr/bin/kubeadm reset --force', stdin=PIPE)
+    bash(f'{sudo} /usr/bin/kubeadm reset --force', input=password)
     bash(f'/usr/bin/rm -rf {kubedir}')
 
 cleanup()
 
 # initialize master
-bash(f'{sudo} /usr/bin/kubeadm config images pull', stdin=PIPE)
-bash(f'{sudo} /usr/bin/kubeadm init --control-plane-endpoint={master}:6443 --pod-network-cidr={CIDR}', stdin=PIPE)
+bash(f'{sudo} /usr/bin/kubeadm config images pull', input=password)
+bash(f'{sudo} /usr/bin/kubeadm init --control-plane-endpoint={master}:6443 --pod-network-cidr={CIDR}', input=password)
 bash(f'/usr/bin/mkdir {kubedir}')
-bash(f'{sudo} /usr/bin/kubeadm config images pull', stdin=PIPE)
-bash(f'{sudo} /usr/bin/cp -i /etc/kubernetes/admin.conf {kubeconf}', stdin=PIPE)
-uid = int(bash('/usr/bin/id -u', stdout=PIPE))
-gid = int(bash('/usr/bin/id -g', stdout=PIPE))
-bash(f'{sudo} /usr/bin/chown {uid}:{gid} {kubeconf}', stdin=PIPE)
+bash(f'{sudo} /usr/bin/kubeadm config images pull', input=password)
+bash(f'{sudo} /usr/bin/cp -i /etc/kubernetes/admin.conf {kubeconf}', input=password)
+uid = int(bash('/usr/bin/id -u'))
+gid = int(bash('/usr/bin/id -g'))
+bash(f'{sudo} /usr/bin/chown {uid}:{gid} {kubeconf}', input=password)
 
 bash('/usr/bin/kubectl cluster-info')
 
@@ -61,7 +60,7 @@ bash('/usr/bin/kubectl cluster-info')
 
 # have worker join the cluster
 join_command = bash('/usr/bin/kubeadm token create --print-join-command', stdout=PIPE)
-bash(f'/usr/bin/ssh {user}@{worker} "{sudo} {join_command}"', stdin=PIPE)
+bash(f'/usr/bin/ssh {user}@{worker} "{sudo} {join_command}"', input=password)
 
 # downlowd calico.yaml for network config
 if not path.exists(yamldir):
