@@ -1,38 +1,37 @@
 #! /usr/bin/env -S python3 -B
 # coding: utf-8
 
-"""
-    This is a basic Python script tempate
-    It can be used as a starting point for creating new scrpts
-"""
-
-import argparse
-import logging
+from subprocess import run, PIPE
+from myutils import bash
+import shutil
 import sys
 
-# configure command-line arguements
-parser = argparse.ArgumentParser()
-parser.add_argument("-v", "--verbose", help="increase output verbosity", action="count", default=0)
-args = parser.parse_args()
+def check_swap():
+    cmd = "free | awk '/^Swap:/ {exit !($2+$3)}'"
+    result = run(cmd, shell=True, stdout=PIPE, stderr=PIPE, text=True)
+    return result.returncode == 0 and int(result.stdout.strip()) > 0
 
-# configure logging level based on command line arguments
-if args.verbose == 0:
-    logging_level = logging.WARNING
-elif args.verbose == 1:
-    logging_level = logging.INFO
-else:
-    logging_level = logging.DEBUG
-
-logging.basicConfig(level=logging_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", stream=sys.stdout)
-logger = logging.getLogger(__name__)
+def load_kernel_modules():
+    modprobe = shutil.which('modprobe')
+    bash(f"{modprobe} overlay")
+    bash(f"{modprobe} br_netfilter")
+    path = '/etc/modules-load.d'
+    src = 'k8s-modules.conf'
+    dst = os.path.join(path,src)
+    shutil.copyfile(src, dst)
 
 def main(argv):
-    """
-    The main function that runs when the script is executed
-    :return: 0 if script excecuted successfully, non-zero otherwise 
-    """
-    logger.info(f"Arguments passed: {argv}")
-    # add your code here
+    # Check that script is running with root privleges
+    if os.geteuid() != 0:
+        print("This script must be run as a privileged user or with the sudo command.")
+        return 1
+
+    # check for swap
+    if check_swap():
+        print("Swap is enabled on this system.  Disable swap and re-run this script.")
+        return 1
+    else:
+        print("No Swap is enabled, you're good to proceed!")
 
     return 0
 
