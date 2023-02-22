@@ -129,6 +129,11 @@ def main(argv):
     with urlopen(keyring_url) as response, open(keyring_path, "wb") as f:
         f.write(response.read())
 
+    # install k8s
+    apt_update()
+    packages = ["kubelet", "kubeadm", "kubectl"]
+    install(packages)
+
     return 0
 
 if __name__ == "__main__":
