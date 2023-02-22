@@ -104,6 +104,25 @@ def main(argv):
             f.write(result)
 
     modify_containerd_config()
+    
+    cmd = shlex.split(f"{shutil.which('systemctl')} restart containerd")
+    result = run(cmd, shell=True, stdout=PIPE, stderr=PIPE, text=True)
+    if result.returncode != 0:
+        print(f"Error: {result.stderr.strip()}")
+        return 1
+    cmd = shlex.split(f"{shutil.which('systemctl')} enable containerd")
+    result = run(cmd, shell=True, stdout=PIPE, stderr=PIPE, text=True)
+    if result.returncode != 0:
+        print(f"Error: {result.stderr.strip()}")
+        return 1
+
+
+    keyrings_dir = '/etc/apt/keyrings'
+    if not os.path.exists(keyrings_dir):
+        os.mkdir(keyrings_dir)
+
+    os.chmod(keyrings_dir, 0o755)
+
     return 0
 
 if __name__ == "__main__":
