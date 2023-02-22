@@ -57,22 +57,6 @@ def main(argv):
     add_key(key)
 
     return 0
-    
-
-def main(argv):
-    # Check that script is running with root privleges
-    if os.geteuid() != 0:
-        print("This script must be run as a privileged user or with the sudo command.")
-        return 1
-
-    # check for swap
-    if check_swap():
-        print("Swap is enabled on this system.  Disable swap and re-run this script.")
-        return 1
-    else:
-        print("No Swap is enabled, you're good to proceed!")
-
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
