@@ -4,12 +4,9 @@
 from myutils import bash
 import os
 import shutil
-from subprocess import PIPE
 import sys
 
 user = 'phil'
-email = 'poadshaw@gmail.com'
-keydir = '/mnt/shared/ssh'
 
 def install_git():
     # update the system
@@ -24,6 +21,7 @@ def configure_git():
     bash(f'{git} config --global user.name "{user}"')		
 
     # set email
+    email = 'poadshaw@gmail.com'
     bash(f'{git} config --global user.email "{email}"')		
 
     # name default branch for new repos
@@ -36,15 +34,16 @@ def setup_ssh_to_github():
     sshdir = f'/home/{user}/.ssh'
     if not os.path.exists(sshdir):
         os.mkdir(sshdir)
-    # bash(f'/usr/bin/cp {keydir}/* {sshdir}')
-    shutil.copytree(keydir,sshdir, dirs_exist_ok=True)
-    uid = int(bash(f'/usr/bin/id -u {user}', stdout=PIPE))
-    gid = int(bash(f'/usr/bin/id -g {user}', stdout=PIPE))
-    bash(f'/usr/bin/chown --recursive {uid}:{gid} {sshdir}')
-    os.chmod(sshdir,0o700)
-    for file in os.listdir(sshdir):
-        os.chmod(os.path.join(sshdir,file),0o644)
-    os.chmod(os.path.join(sshdir, 'id_ed25519'),0o600)
+        os.chmod(sshdir,0o700)
+    keydir = '/mnt/shared/ssh'
+    if os.path.exists(keydir):
+        shutil.copytree(keydir,sshdir, dirs_exist_ok=True)
+        uid = int(bash(f'/usr/bin/id -u {user}'))
+        gid = int(bash(f'/usr/bin/id -g {user}'))
+        bash(f'/usr/bin/chown --recursive {uid}:{gid} {sshdir}')
+        for file in os.listdir(sshdir):
+            os.chmod(os.path.join(sshdir,file),0o644)
+        os.chmod(os.path.join(sshdir, 'id_ed25519'),0o600)
 
 def main(args):
     install_git()
