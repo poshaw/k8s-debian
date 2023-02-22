@@ -1,6 +1,7 @@
 #! /usr/bin/env -S python3 -B
 # coding: utf-8
 
+import fileinput
 import os
 import shlex
 import shutil
