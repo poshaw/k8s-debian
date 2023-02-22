@@ -51,6 +51,16 @@ def install(packages):
     cmd = shlex.split(f"{shutil.which('apt')} install -y") + packages
     run(cmd, check=True)
 
+def modify_containerd_config():
+    # Open config.toml in inplace mode, allowing modifications to be made
+    with fileinput.input('/etc/containerd/config.toml', inplace=True) as f:
+        for line in f:
+            # Look for the SystemdCgroup setting and modify it
+            if 'SystemdCgroup' in line:
+                line = 'SystemdCgroup = true\n'
+            # Print the modified or unmodified line to stdout
+            print(line, end='')
+            
 def main(argv):
     # Check that script is running with root privleges
     if os.geteuid() != 0:
@@ -84,7 +94,15 @@ def main(argv):
         print("No Swap is enabled, you're good to proceed!")
 
     load_kernel_modules()
+    
+    # configure containerd
+    cmd = "containerd config default"
+    result = run(cmd, shell=True, stdout=PIPE, stderr=PIPE, text=True)
+    if result.returncode == 0:
+        with open('/etc/containerd/config.toml', 'w') as f:
+            f.write(result)
 
+    modify_containerd_config()
     return 0
 
 if __name__ == "__main__":
