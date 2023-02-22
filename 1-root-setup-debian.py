@@ -18,7 +18,6 @@ from shlex import quote
 import shutil
 import sys
 
-
 def update():
     apt = shutil.which('apt')
     bash(f'{apt} update')		
@@ -26,36 +25,27 @@ def update():
     bash(f'{apt} install -y sudo htop git python3-pip psmisc neovim curl openssh-server')		
 
 def hostname():
-    # set up computers list
-    computers = [("km1", "192.168.56.50"),
-                 ("kw1", "192.168.56.60")]
-    domain = "lan"
+    hostname = input("Enter computer hostname: ")
+    domain = 'lan'
 
-    # Write the hostname to /etc/hostname
-    with open('/etc/hostname', 'w') as file:
-        file.write(f"{computers[0][0]}\n")
+    with open('/etc/hostname', 'w') as f:
+        f.write(hostname)
 
-    # Set up the /etc/hosts file
+    path = '/etc'
+    src = 'hosts'
+    dst = os.path.join(path,src)
+    shutil.copyfile(src, dst)
     with open('/etc/hosts', 'r') as f:
         lines = f.readlines()
 
-    # check if localhost is set to 127.0.0.1
-    if not any('127.0.0.1' in line and 'localhost' in line for line in lines):
-        # Add the localhost mapping if it doesn't exist
-        with open('/etc/hosts', 'a') as f:
-            f.write('127.0.0.1\tlocalhost\n')
+    for i, line in enumerate(lines):
+        if '127.0.1.1' in line:
+            lines[i] = f'127.0.1.1\t{hostname} {hostname}.{domain}\n'
+            break
 
-    # Set up the mappings for all machines in the computers list
-    entries = []
-    for computer in computers:
-        entry = f'{computer[1]}\t{computer[0]} {computer[0]}.{domain}'
-        entries.append(entry)
-
-   # Add the entries into the /etc/hosts file 
-    with open('/etc/hosts', 'a') as f:
-        f.write('\n')
-        f.write('\n'.join(entries))
-
+    with open('/etc/hosts', 'w') as f:
+        f.writelines(lines)
+            
 def envVar():
     # set up environment variables
     shutil.copy('environment', '/etc/')
@@ -99,6 +89,23 @@ def grub():
     update_grub = shutil.which('update-grub')
     bash(f'{update_grub}')
 
+def networkInterface():
+    path = '/etc/network'
+    src = 'interfaces'
+    dst = os.path.join(path,src)
+    shutil.copyfile(src, dst)
+    path = '/etc/network/interfaces.d'
+    src = 'enp0s3'
+    dst = os.path.join(path,src)
+    shutil.copyfile(src, dst)
+    src = 'enp0s8'
+    dst = os.path.join(path,src)
+    shutil.copyfile(src, dst)
+
+    # restart the computer
+    halt = shutil.which('halt')
+    bash(f'{halt} --reboot --force')	
+
 def main(args):
     # Check that script is running with root privleges
     if os.geteuid() != 0:
@@ -106,7 +113,6 @@ def main(args):
         exit(1)
 
     user = quote('phil')
-
     try:
         pwd.getpwnam(user)
     except KeyError:
@@ -114,11 +120,11 @@ def main(args):
         bash(f'{useradd} -m -s /bin/bash {user}')
 
     update()
-    # networkInterface()
     hostname()
     envVar()
     setupUser(user)
     grub()
+    networkInterface()
     return 0
 
 if __name__ == "__main__":
