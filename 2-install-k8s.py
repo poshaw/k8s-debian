@@ -122,6 +122,12 @@ def main(argv):
         os.mkdir(keyrings_dir)
 
     os.chmod(keyrings_dir, 0o755)
+    
+    # Download Kubernetes archive keyring
+    keyring_url = "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+    keyring_path = "/usr/share/keyrings/Kubernetes-archive-keyring.gpg"
+    with urlopen(keyring_url) as response, open(keyring_path, "wb") as f:
+        f.write(response.read())
 
     return 0
 
