@@ -90,6 +90,7 @@ def grub():
     bash(f'{update_grub}')
 
 def networkInterface():
+    # TODO change this to eth0 and then modify based on hostname?
     path = '/etc/network'
     src = 'interfaces'
     dst = os.path.join(path,src)
