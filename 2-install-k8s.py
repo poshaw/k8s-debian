@@ -1,24 +1,36 @@
 #! /usr/bin/env -S python3 -B
 # coding: utf-8
 
-from subprocess import run, PIPE
 from myutils import bash
 import shutil
+import subprocess
 import sys
 
 def check_swap():
     cmd = "free | awk '/^Swap:/ {exit !($2+$3)}'"
-    result = run(cmd, shell=True, stdout=PIPE, stderr=PIPE, text=True)
+    result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     return result.returncode == 0 and int(result.stdout.strip()) > 0
 
 def load_kernel_modules():
     modprobe = shutil.which('modprobe')
     bash(f"{modprobe} overlay")
     bash(f"{modprobe} br_netfilter")
+
+    # load modules at each boot
     path = '/etc/modules-load.d'
     src = 'k8s-modules.conf'
     dst = os.path.join(path,src)
     shutil.copyfile(src, dst)
+
+    # set k8s kernel parameters
+    path = '/etc/sysctl.d'
+    src = 'k8s.conf'
+    dst = os.path.join(path,src)
+    shutil.copyfile(src, dst)
+
+    sysctl = shutil.which('sysctl')
+    bash(f"{sysctl} --system")
+    
 
 def main(argv):
     # Check that script is running with root privleges
