@@ -49,6 +49,7 @@ def apt_update():
 
 def install(packages):
     cmd = shlex.split(f"{shutil.which('apt')} install -y") + packages
+    run(cmd, stdout=PIPE, stderr=PIPE, text=True)
 
 def main(argv):
     # Check that script is running with root privleges
@@ -60,10 +61,6 @@ def main(argv):
     apt_update()
     packages = ["curl", "gnupg2", "software-properties-common", "apt-transport-https", "ca-certificates"]
     install(packages)
-    result = run(cmd, stdout=PIPE, stderr=PIPE, text=True)
-    if result.returncode != 0:
-        print(f"Effor: {result.stderr.strip()}")
-        return 1
 
     # Add Docker repository key
     url = "https://download.docker.com/linux/debian/gpg"
