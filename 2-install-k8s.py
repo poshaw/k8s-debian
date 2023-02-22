@@ -1,11 +1,10 @@
 #! /usr/bin/env -S python3 -B
 # coding: utf-8
 
-from subprocess import run, PIPE
-from myutils import bash
 import os
 import shlex
 import shutil
+from subprocess import CalledProcessError, PIPE, run
 import sys
 from urllib.request import urlopen
 
@@ -15,11 +14,18 @@ def check_swap():
     return result.returncode == 0 and int(result.stdout.strip()) > 0
 
 def load_kernel_modules():
-    modprobe = shutil.which('modprobe')
-    bash(f"{modprobe} overlay")
-    bash(f"{modprobe} br_netfilter")
+    cmd = shlex.split(f"{shutil.which('modprobe')} overlay")
+    run(cmd, check=True)
+    cmd = shlex.split(f"{shutil.which('modprobe')} br_netfilter")
+    run(cmd, check=True)
+
     path = '/etc/modules-load.d'
     src = 'k8s-modules.conf'
+    dst = os.path.join(path,src)
+    shutil.copyfile(src, dst)
+
+    path = '/etc/sysctl.d'
+    src = 'k8s.conf'
     dst = os.path.join(path,src)
     shutil.copyfile(src, dst)
 
@@ -37,11 +43,41 @@ def add_key(key):
 
     return result.stdout.decode().strip()
 
+def apt_update():
+    cmd = shlex.split(f"{shutil.which('apt')} update")
+    run(cmd, check=True)
+
+def install(packages):
+    cmd = shlex.split(f"{shutil.which('apt')} install -y") + packages
+
 def main(argv):
     # Check that script is running with root privleges
     if os.geteuid() != 0:
         print("This script must be run as a privileged user or with the sudo command.")
         return 1
+
+    # Install dependencies
+    apt_update()
+    packages = ["curl", "gnupg2", "software-properties-common", "apt-transport-https", "ca-certificates"]
+    install(packages)
+    result = run(cmd, stdout=PIPE, stderr=PIPE, text=True)
+    if result.returncode != 0:
+        print(f"Effor: {result.stderr.strip()}")
+        return 1
+
+    # Add Docker repository key
+    url = "https://download.docker.com/linux/debian/gpg"
+    key = download_key(url)
+    add_key(key)
+
+    # Add Docker repository
+    distro = run(['lsb_release', '-cs'], check=True, stdout=PIPE, text=True).stdout.strip()
+    repo = f"deb [arch=amd64] https://download.docker.com/linux/debian {distro} stable"
+    run(['add-apt-repository', repo], check=True)
+
+    # install containerd
+    apt_update()
+    install(['containerd.io'])
 
     # check for swap
     if check_swap():
@@ -51,10 +87,6 @@ def main(argv):
         print("No Swap is enabled, you're good to proceed!")
 
     load_kernel_modules()
-
-    url = "https://download.docker.com/linux/debian/gpg"
-    key = download_key(url)
-    add_key(key)
 
     return 0
 
