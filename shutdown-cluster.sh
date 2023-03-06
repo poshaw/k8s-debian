@@ -40,7 +40,7 @@ else
 		 echo "Cordoning node ${node}..."
 		 kubectl cordon "${node}"
 		 echo "Draining node ${node}..."
-		 kubectl drain "${node}" --ignore-daemonsets --delete-local-data --force
+		 kubectl drain "${node}" --ignore-daemonsets --delete-emptydir-data --force
 	done
 
 	# Shutdown worker nodes
