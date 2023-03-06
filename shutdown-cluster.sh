@@ -31,15 +31,9 @@ fi
 # Cordon the node and evict the workloads
 for node in "${worker_nodes[@]}"; do
     echo "Cordoning node ${node}..."
-    if ! kubectl cordon "${node}"; then
-        echo "Failed to cordon node ${node}"
-        exit 1
-    fi
+    kubectl cordon "${node}"
     echo "Draining node ${node}..."
-    if ! kubectl drain "${node}" --ignore-daemonsets --delete-local-data --force; then
-        echo "Failed to drain node ${node}"
-        exit 1
-    fi
+    kubectl drain "${node}" --ignore-daemonsets --delete-local-data --force
 done
 
 # Shutdown worker nodes
@@ -65,5 +59,3 @@ if ! echo "$SUDO_PASSWORD" | sudo -S shutdown -h now; then
     echo "Failed to shutdown master/control-plane node"
     exit 1
 fi
-
-# End of Script
