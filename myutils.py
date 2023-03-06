@@ -14,3 +14,6 @@ def runc(cmd, input=None):
         check=True,
     )
     return result.stdout, result.stderr
+
+def handle_error(script_name, line_number, error):
+    logging.error(f"{script_name}:{line_number} - An error occurred: {error}")
