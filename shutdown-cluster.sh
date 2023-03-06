@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+# Confirm before shutting down the cluster
+read -p "Are you sure you want to shut down the cluster? (y/n) " -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborting shutdown."
+    exit 0
+fi
+
 # Prompt the user for their sudo password
 echo -n "Please enter your sudo password: "
 read -s SUDO_PASSWORD
@@ -33,14 +41,6 @@ for node in "${worker_nodes[@]}"; do
         exit 1
     fi
 done
-
-# Confirm before shutting down the cluster
-read -p "Are you sure you want to shut down the cluster? (y/n) " -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborting shutdown."
-    exit 0
-fi
 
 # Shutdown worker nodes
 for node in "${worker_nodes[@]}"; do
