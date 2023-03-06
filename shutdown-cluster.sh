@@ -30,7 +30,7 @@ worker_nodes=('kw1.lan')
 for (( i=0; i<${#worker_nodes[@]}; i++ )); do
     node="${worker_nodes[$i]}"
     echo "Confirming that node ${node} is up..."
-    if ! ssh "${node}" "uptime"; then
+    if ! ssh "${node}" "uptime >/dev/null"; then
         echo "Node ${node} is not up, removing it from the worker_nodes list..."
         unset worker_nodes[$i]
     fi
