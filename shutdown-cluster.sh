@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 # Confirm before shutting down the cluster
 read -p "Are you sure you want to shut down the cluster? (y/n) " -r
