@@ -35,8 +35,8 @@ def reset_cluster(workers):
     stdout, stderr = runc(cmd)
     if stderr:
         logging.error(f'Error cleaning up {kubedir}: {stderr}')
-    else:
-        logging.info(f'{kubedir} cleaned up successfully.')
+    
+    logging.info('K8S cluster reset successfully.')
 
 def initialize_master(master):
     cmd = f'sudo -S kubeadm config images pull'
@@ -51,11 +51,7 @@ def initialize_master(master):
         logging.error(f'Error initializing master: {stderr}')
         return
 
-    cmd = f'mkdir {kubedir}'
-    stdout, stderr = runc(cmd)
-    if stderr:
-        logging.error(f'Error creating directory {kubedir}: {stderr}')
-        return
+    os.makedirs(kubedir, exist_ok=True)
 
     cmd = f'sudo -S cp -i /etc/kubernetes/admin.conf {kubeconf}'
     stdout, stderr = runc(cmd, input=password)
@@ -71,6 +67,8 @@ def initialize_master(master):
     if stderr:
         logging.error(f'Error changing permission of {kubeconf} to {uid}:{gid}: {stderr}')
         return
+    
+    logging.info('Initialization of master node completed successfully.')
 
 def worker_join_cluster(workers, join_command):
     for worker in workers:
