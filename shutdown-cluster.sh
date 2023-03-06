@@ -56,7 +56,7 @@ else
 	for node in "${worker_nodes[@]}"; do
 	    echo "Waiting for worker node ${node} to shut down..."
 	    while ping -c1 "${node}" &> /dev/null; do
-		sleep 5
+		sleep 2
 	    done
 	done
 fi
