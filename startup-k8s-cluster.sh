@@ -15,6 +15,7 @@ logging.basicConfig(level=logging.INFO)
 
 user = getpass.getuser()
 password = getpass.getpass(prompt='Enter sudo password: ')
+password = password.decode()
 nodes = ['km1.lan', 'kw1.lan']
 CIDR = '10.100.0.0/16'
 kubedir = os.path.join(os.path.expanduser('~'), '.kube')
