@@ -19,6 +19,11 @@ if [[ -z "$SUDO_PASSWORD" ]]; then
     exit 1
 fi
 
+if ! echo "$SUDO_PASSWORD" | sudo -S ls / >/dev/null 2>&1; then
+echo "Incorrect sudo password."
+exit 1
+fi
+
 worker_nodes=('kw1.lan')
 
 # Confirm that each worker node is up or remove it from the worker_nodes list
