@@ -21,10 +21,19 @@ fi
 
 worker_nodes=('kw1.lan')
 
+# Confirm that each worker node is up before shutting it down
+for (( i=0; i<${#worker_nodes[@]}; i++ )); do
+    node="${worker_nodes[$i]}"
+    echo "Confirming that node ${node} is up..."
+    if ! ssh "${node}" "uptime"; then
+        echo "Node ${node} is not up, removing it from the worker_nodes list..."
+        unset worker_nodes[$i]
+    fi
+done
+
 # Validate worker nodes
 if [[ ${#worker_nodes[@]} -eq 0 ]]; then
     echo "No worker nodes found."
-    exit 1
 fi
 
 # Cordon the node and evict the workloads
