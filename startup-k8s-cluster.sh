@@ -2,8 +2,10 @@
 # coding: utf-8
 
 import getpass
-import subprocess
 import os
+import shlex
+import shutil
+import subprocess
 import sys
 
 user = getpass.getuser()
@@ -15,24 +17,49 @@ kubeconf = os.path.join(os.path.expanduser('~'), '.kube', 'config')
 yamldir = os.path.join(os.path.expanduser('~'), 'yaml')
 calico = os.path.join(yamldir, 'calico.yaml')
 sudo = '/usr/bin/sudo -S'
-
+runc = lambda cmd, input=None: (subprocess.run(cmd.shlex.split(), input=input.encode('utf-8') if input else None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)).stdout, (subprocess.run(cmd.shlex.split(), input=input.encode('utf-8') if input else None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)).stderr
 def reset_cluster():
     for node in nodes[1:]:
         # reset node
-        subprocess.run(split(f'/usr/bin/ssh {user}@{node} "{sudo} /usr/bin/kubeadm reset --force"'), input=password.encode('utf-8'), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        cmd = f'/usr/bin/ssh {user}@{node} "{sudo} /usr/bin/kubeadm reset --force"'
+        stdout, stderr = runc(cmd, input=password)
+        if stderr:
+            print(f'Error resetting {node}: {stderr}')
 
-    subprocess.run(split(f'{sudo} /usr/bin/rm -rf {kubedir}'), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    cmd = f'{sudo} /usr/bin/rm -rf {kubedir}'
+    stdout, stderr = runc(cmd)
+    if stderr:
+        print(f'Error cleaning up {kubedir}: {stderr}')
 
 def initialize_master():
-    subprocess.run(split(f'{sudo} /usr/bin/kubeadm config images pull'), input=password.encode('utf-8'), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    subprocess.run(split(f'{sudo} /usr/bin/kubeadm init --control-plane-endpoint={nodes[0]}:6443 --pod-network-cidr={CIDR}'), input=password.encode('utf-8'), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    subprocess.run(split(f'/usr/bin/mkdir {kubedir}'), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    subprocess.run(split(f'{sudo} /usr/bin/kubeadm config images pull'), input=password.encode('utf-8'), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    cmd = f'{sudo} {shutil.which("kubeadm")} config images pull'
+    stdout, stderr = runc(cmd, input=password)
+    if stderr:
+        print(f'Error pulling images: {stderr}')
+
+    cmd = f'{sudo} {shutil.which("kubeadm")} init --control-plane-endpoint={nodes[0]}:6443 --pod-network-cidr={CIDR}'
+    stdout, stderr = runc(cmd, input=password)
+    if stderr:
+        print(f'Error initializing master: {stderr}')
+
+    cmd = f'{shutil.which("mkdir")} {kubedir}'
+    stdout, stderr = runc(cmd)
+    if stderr:
+        print(f'Error creating directory {kubedir}: {stderr}')
+
+    cmd = f'{sudo} {shutil.which("cp")} -i /etc/kubernetes/admin.conf {kubeconf}'
+    stdout, stderr = runc(cmd, input=password)
+    if stderr:
+        print(f'Error copying directory {kubedir}: {stderr}')
+
     uid = os.getuid()
     gid = os.getgid()
-    subprocess.run(split(f'{sudo} /usr/bin/cp -i /etc/kubernetes/admin.conf {kubeconf}'), input=password.encode('utf-8'), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    subprocess.run(split(f'{sudo} /usr/bin/chown {uid}:{gid} {kubeconf}'), input=password.encode('utf-8'), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-
+    
+    cmd = f'{sudo} {shutil.which("chown")} {uid}:{gid} {kubeconf}'
+    stdout, stderr = runc(cmd, input=password)
+    if stderr:
+        print(f'Error changing permission of {kubeconf} to {uid}:{gid}: {stderr}')
+    
 def main(args):
     reset_cluster()
     initialize_master()
