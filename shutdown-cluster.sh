@@ -55,15 +55,10 @@ else
 	# Wait for the worker nodes to shut down
 	for node in "${worker_nodes[@]}"; do
 	    echo "Waiting for worker node ${node} to shut down..."
-	    while ssh -o ConnectTimeout=5 "$node" "uptime" &> /dev/null; do
-		if timeout 10 ssh -o ConnectTimeout=5 "$node" "exit" &> /dev/null; then
-		    sleep 2
-		else
-		    break
-		fi
+	    while ping -c1 "${node}" &> /dev/null; do
+		sleep 5
 	    done
 	done
-
 fi
 
 # Shutdown master/control-plane node
