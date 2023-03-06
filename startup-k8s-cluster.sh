@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import getpass
+from myutils import runc
 import os
 import shlex
 import shutil
@@ -17,7 +18,7 @@ kubeconf = os.path.join(os.path.expanduser('~'), '.kube', 'config')
 yamldir = os.path.join(os.path.expanduser('~'), 'yaml')
 calico = os.path.join(yamldir, 'calico.yaml')
 sudo = '/usr/bin/sudo -S'
-runc = lambda cmd, input=None: (subprocess.run(cmd.shlex.split(), input=input.encode('utf-8') if input else None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)).stdout, (subprocess.run(cmd.shlex.split(), input=input.encode('utf-8') if input else None, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)).stderr
+
 def reset_cluster():
     for node in nodes[1:]:
         # reset node
