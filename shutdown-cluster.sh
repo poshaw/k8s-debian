@@ -46,7 +46,7 @@ else
 	# Shutdown worker nodes
 	for node in "${worker_nodes[@]}"; do
 		 echo "Shutting down node ${node}..."
-		 if ! ssh "${node}" "echo \"$SUDO_PASSWORD\" | sudo -S shutdown -h now"; then
+		 if ! ssh -o ConnectTimeout=10 "${node}" "echo \"$SUDO_PASSWORD\" | sudo -S nohup shutdown -h now >/dev/null 2>&1 &"; then
 			  echo "Failed to shutdown node ${node}"
 			  exit 1
 		 fi
