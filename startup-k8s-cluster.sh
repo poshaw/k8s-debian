@@ -9,7 +9,7 @@ import shlex
 import shutil
 import subprocess
 import sys
-from myutils import runc
+from myutils import handle_error, runc
 
 logging.basicConfig(level=logging.INFO)
 
@@ -142,11 +142,11 @@ def main(args):
 
         runc('kubectl cluster-info')
     except FileNotFoundError as e:
-        logging.error(f"Error: {e}")
+        handle_error(__file__, sys.exc_info()[-1].tb_lineno, e)
     except PermissionError as e:
-        logging.error(f"Error: {e}")
+        handle_error(__file__, sys.exc_info()[-1].tb_lineno, e)
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        handle_error(__file__, sys.exc_info()[-1].tb_lineno, e)
     else:
         logging.info("Script completed successfully.")
 
