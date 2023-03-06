@@ -22,8 +22,9 @@ yamldir = os.path.join(os.path.expanduser('~'), 'yaml')
 calico = os.path.join(yamldir, 'calico.yaml')
 
 def reset_cluster(workers):
+    logging.info('Resetting K8S cluster...')
     for worker in workers:
-        # reset node
+        logging.info(f'Resetting worker {worker}...')
         cmd = f'ssh {user}@{worker} "sudo -S kubeadm reset --force"'
         stdout, stderr = runc(cmd, input=password)
         if stderr:
@@ -31,6 +32,7 @@ def reset_cluster(workers):
         else:
             logging.info(f'{worker} reset successfully.')
             
+    logging.info('Cleaning up K8S directory...')
     cmd = f'rm -rf {kubedir}'
     stdout, stderr = runc(cmd)
     if stderr:
@@ -39,12 +41,14 @@ def reset_cluster(workers):
     logging.info('K8S cluster reset successfully.')
 
 def initialize_master(master):
-    cmd = f'sudo -S kubeadm config images pull'
+    logging.info('Pulling images...')
+    cmd = 'sudo -S kubeadm config images pull'
     stdout, stderr = runc(cmd, input=password)
     if stderr:
         logging.error(f'Error pulling images: {stderr}')
         return
 
+    logging.info('Initializing master...')
     cmd = f'sudo -S kubeadm init --control-plane-endpoint={master}:6443 --pod-network-cidr={CIDR}'
     stdout, stderr = runc(cmd, input=password)
     if stderr:
@@ -53,6 +57,7 @@ def initialize_master(master):
 
     os.makedirs(kubedir, exist_ok=True)
 
+    logging.info('Copying config file...')
     cmd = f'sudo -S cp -i /etc/kubernetes/admin.conf {kubeconf}'
     stdout, stderr = runc(cmd, input=password)
     if stderr:
@@ -72,14 +77,16 @@ def initialize_master(master):
 
 def worker_join_cluster(workers, join_command):
     for worker in workers:
-        # have worker join the cluster
+        logging.info(f'Joining worker {worker} to the cluster...')
         cmd = f'ssh {user}@{worker} "sudo -S {join_command}"'
         stdout, stderr = runc(cmd, input=password)
         if stderr:
             logging.error(f'Error joining worker {worker} to the cluster: {stderr}')
+        else:
+            logging.info(f'Worker {worker} joined the cluster successfully.')
     
 def setup_calico():
-    # Download calico.yaml for network config
+    logging.info("Downloading calico.yaml for network config...")
     if not os.path.exists(yamldir):
         os.mkdir(yamldir)
 
@@ -92,6 +99,7 @@ def setup_calico():
     if stderr:
         logging.error(f'Error downloading calico.yaml: {stderr}')
         return
+    logging.info("Calico.yaml download successful.")
 
     try:
         shutil.copyfile(calico_file, backup_file)
@@ -140,8 +148,6 @@ def main(args):
         logging.error(f"An error occurred: {e}")
     else:
         logging.info("Script completed successfully.")
-
-
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
