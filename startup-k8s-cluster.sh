@@ -94,7 +94,7 @@ def setup_calico():
         return
 
     try:
-        shutil.copy(calico_file, backup_file)
+        shutil.copyfile(calico_file, backup_file)
     except (FileNotFoundError, PermissionError) as e:
         logging.error(f'Error creating backup file: {e}')
         return
@@ -128,7 +128,7 @@ def main(args):
     try:
         reset_cluster(nodes[1:])
         initialize_master(nodes[0])
-        join_command = runc('shutil.which("kubeadm")} token create --print-join-command')[0].strip()
+        join_command = runc('kubeadm token create --print-join-command')[0].strip()
         worker_join_cluster(nodes[1:], join_command)
 
         runc(f'{shutil.which("kubectl")} cluster-info')
