@@ -131,9 +131,15 @@ def main(args):
         join_command = runc('kubeadm token create --print-join-command')[0].strip()
         worker_join_cluster(nodes[1:], join_command)
 
-        runc(f'{shutil.which("kubectl")} cluster-info')
+        runc('kubectl cluster-info')
+    except FileNotFoundError as e:
+        logging.error(f"Error: {e}")
+    except PermissionError as e:
+        logging.error(f"Error: {e}")
     except Exception as e:
-        logging.exception(e)
+        logging.error(f"An error occurred: {e}")
+    else:
+        logging.info("Script completed successfully.")
 
 
 
