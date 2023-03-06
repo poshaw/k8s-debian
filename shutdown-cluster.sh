@@ -50,6 +50,8 @@ else
 			  echo "Failed to shutdown node ${node}"
 			  exit 1
 		 fi
+		 # Wait for the SSH connection to be closed before proceeding
+		 sleep 5
 	done
 
 	# Wait for the worker nodes to shut down
