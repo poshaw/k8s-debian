@@ -34,7 +34,7 @@ done
 # Validate worker nodes
 if [[ ${#worker_nodes[@]} -eq 0 ]]; then
     echo "No worker nodes found."
- else
+else
 	# Cordon the node and evict the workloads
 	for node in "${worker_nodes[@]}"; do
 		 echo "Cordoning node ${node}..."
