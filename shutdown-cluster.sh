@@ -21,7 +21,7 @@ fi
 
 worker_nodes=('kw1.lan')
 
-# Confirm that each worker node is up before shutting it down
+# Confirm that each worker node is up or remove it from the worker_nodes list
 for (( i=0; i<${#worker_nodes[@]}; i++ )); do
     node="${worker_nodes[$i]}"
     echo "Confirming that node ${node} is up..."
@@ -34,32 +34,32 @@ done
 # Validate worker nodes
 if [[ ${#worker_nodes[@]} -eq 0 ]]; then
     echo "No worker nodes found."
+ else
+	# Cordon the node and evict the workloads
+	for node in "${worker_nodes[@]}"; do
+		 echo "Cordoning node ${node}..."
+		 kubectl cordon "${node}"
+		 echo "Draining node ${node}..."
+		 kubectl drain "${node}" --ignore-daemonsets --delete-local-data --force
+	done
+
+	# Shutdown worker nodes
+	for node in "${worker_nodes[@]}"; do
+		 echo "Shutting down node ${node}..."
+		 if ! ssh "${node}" "echo \"$SUDO_PASSWORD\" | sudo -S shutdown -h now"; then
+			  echo "Failed to shutdown node ${node}"
+			  exit 1
+		 fi
+	done
+
+	# Wait for the worker nodes to shut down
+	for node in "${worker_nodes[@]}"; do
+		 echo "Waiting for worker node ${node} to shut down..."
+		 while ssh "$node" "uptime" &> /dev/null; do
+			  sleep 5
+		 done
+	done
 fi
-
-# Cordon the node and evict the workloads
-for node in "${worker_nodes[@]}"; do
-    echo "Cordoning node ${node}..."
-    kubectl cordon "${node}"
-    echo "Draining node ${node}..."
-    kubectl drain "${node}" --ignore-daemonsets --delete-local-data --force
-done
-
-# Shutdown worker nodes
-for node in "${worker_nodes[@]}"; do
-    echo "Shutting down node ${node}..."
-    if ! ssh "${node}" "echo \"$SUDO_PASSWORD\" | sudo -S shutdown -h now"; then
-        echo "Failed to shutdown node ${node}"
-        exit 1
-    fi
-done
-
-# Wait for the worker nodes to shut down
-for node in "${worker_nodes[@]}"; do
-    echo "Waiting for worker node ${node} to shut down..."
-    while ssh "$node" "uptime" &> /dev/null; do
-        sleep 5
-    done
-done
 
 # Shutdown master/control-plane node
 echo "Shutting down master/control-plane node..."
