@@ -16,7 +16,9 @@ def runc(cmd, input=None):
     return result.stdout, result.stderr
 
 def handle_error(script_name, error):
-    frame = inspect.currentframe().f_back
-    function_name = frame.f_code.co_name
-    line_number = frame.f_lineno
-    logging.error(f"{script_name}:{function_name}:{line_number} - An error occurred: {error}")
+    exc_type, exc_obj, tb = sys.exc_info()
+    f = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = f.f_code.co_filename
+    function_name = f.f_code.co_name
+    logging.error(f"{script_name}:{filename}:{function_name}:{lineno} - An error occurred: {error}")
