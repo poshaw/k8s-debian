@@ -37,7 +37,11 @@ def reset_cluster(workers):
         cmd = f'ssh {user}@{worker} "sudo -S systemctl start kubelet"'
         stdout, stderr = runc(cmd, input=password)
             
-    logging.info('Cleaning up K8S directory...')
+    logging.info('Resetting K8S master...')
+    cmd = 'sudo -S kubeadm reset --force'
+    stdout, stderr = runc(cmd, input=password)
+    cmd = f'sudo rm /etc/cni/net.d'
+    stdout, stderr = runc(cmd, input=password)
     cmd = f'rm -rf {kubedir}'
     stdout, stderr = runc(cmd)
     if stderr:
