@@ -142,11 +142,11 @@ def main(args):
 
         runc('kubectl cluster-info')
     except FileNotFoundError as e:
-        handle_error(__file__, sys.exc_info()[-1].tb_lineno, e)
+        handle_error(__file__, e)
     except PermissionError as e:
-        handle_error(__file__, sys.exc_info()[-1].tb_lineno, e)
+        handle_error(__file__, e)
     except Exception as e:
-        handle_error(__file__, sys.exc_info()[-1].tb_lineno, e)
+        handle_error(__file__, e)
     else:
         logging.info("Script completed successfully.")
 
