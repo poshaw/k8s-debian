@@ -2,6 +2,7 @@ import inspect
 import logging
 import shlex
 import subprocess
+import sys
 
 def runc(cmd, input=None):
     cmd_list = shlex.split(cmd)
