@@ -6,7 +6,6 @@ import sys
 import traceback
 
 def runc(cmd, input=None):
-    print(f"input is a: {type(input)}")
     cmd_list = shlex.split(cmd)
     result = subprocess.run(
         cmd_list,
