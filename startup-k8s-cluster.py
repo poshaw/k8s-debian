@@ -141,14 +141,20 @@ def setup_calico():
 
     logging.info('Calico configuration applied successfully.')
         
-def main(args):
+def k8s_status():
+    cmd = 'kubectl cluster-info'
+    stdout, stderr = runc(cmd)
+    logging.info(stdout)
+    
+        
+        def main(args):
     try:
         reset_cluster(nodes[1:])
         initialize_master(nodes[0])
         join_command = runc('kubeadm token create --print-join-command')[0].strip()
         worker_join_cluster(nodes[1:], join_command)
-
-        runc('kubectl cluster-info')
+        setup_calico()
+        k8s_status()
     except FileNotFoundError as e:
         handle_error(__file__, e)
     except PermissionError as e:
