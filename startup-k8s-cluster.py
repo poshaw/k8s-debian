@@ -99,7 +99,7 @@ def setup_calico():
     if not os.path.exists(yamldir):
         os.mkdir(yamldir)
 
-    calico_url = 'https://docs.projectcalico.org/manifests/calico.yaml'
+    calico_url = 'https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml'
     calico_file = os.path.join(yamldir, 'calico.yaml')
     backup_file = calico_file + '_bak'
 
