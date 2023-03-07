@@ -146,8 +146,8 @@ def k8s_status():
     stdout, stderr = runc(cmd)
     logging.info(stdout)
     
-        
-        def main(args):
+
+def main(args):
     try:
         reset_cluster(nodes[1:])
         initialize_master(nodes[0])
