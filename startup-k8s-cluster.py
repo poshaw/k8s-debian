@@ -26,12 +26,16 @@ def reset_cluster(workers):
     logging.info('Resetting K8S cluster...')
     for worker in workers:
         logging.info(f'Resetting worker {worker}...')
+        cmd = f'ssh {user}@{worker} "sudo -S systemctl stop kubelet"'
+        stdout, stderr = runc(cmd, input=password)
+        cmd = f'ssh {user}@{worker} "sudo -S systemctl disable kubelet"'
+        stdout, stderr = runc(cmd, input=password)
         cmd = f'ssh {user}@{worker} "sudo -S kubeadm reset --force"'
         stdout, stderr = runc(cmd, input=password)
-        if stderr:
-            logging.error(f'Error resetting {worker}: {stderr}')
-        else:
-            logging.info(f'{worker} reset successfully.')
+        cmd = f'ssh {user}@{worker} "sudo -S systemctl enable kubelet"'
+        stdout, stderr = runc(cmd, input=password)
+        cmd = f'ssh {user}@{worker} "sudo -S systemctl start kubelet"'
+        stdout, stderr = runc(cmd, input=password)
             
     logging.info('Cleaning up K8S directory...')
     cmd = f'rm -rf {kubedir}'
