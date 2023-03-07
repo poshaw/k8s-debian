@@ -17,10 +17,11 @@ def runc(cmd, input=None):
     )
     return result.stdout, result.stderr
 
-def handle_error(script_name, error):
+def handle_error(script_name, error, line=None):
     exc_type, exc_obj, tb = sys.exc_info()
+    if line is None:
+        line = tb.tb_lineno
     f = tb.tb_frame
-    lineno = tb.tb_lineno
     filename = f.f_code.co_filename
     function_name = f.f_code.co_name
-    logging.error(f"{script_name}:{filename}:{function_name}:{lineno} - An error occurred: {error}")
+    logging.error(f"{script_name}:{filename}:{function_name}:{line} - An error occurred: {error}")
