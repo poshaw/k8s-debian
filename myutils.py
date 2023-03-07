@@ -17,10 +17,9 @@ def runc(cmd, input=None):
     )
     return result.stdout, result.stderr
 
-def handle_error(script_name, error, line=None):
+def handle_error(script_name, error):
     exc_type, exc_obj, tb = sys.exc_info()
-    if line is None:
-        line = tb.tb_lineno
+    line = traceback.extract_tb(error.__traceback__)[-1].lineno
     f = tb.tb_frame
     filename = f.f_code.co_filename
     function_name = f.f_code.co_name
