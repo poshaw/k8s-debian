@@ -40,7 +40,7 @@ def reset_cluster(workers):
     logging.info('Resetting K8S master...')
     cmd = 'sudo -S kubeadm reset --force'
     stdout, stderr = runc(cmd, input=password)
-    cmd = f'sudo rm /etc/cni/net.d'
+    cmd = f'sudo rm -rf /etc/cni/net.d/*'
     stdout, stderr = runc(cmd, input=password)
     cmd = f'rm -rf {kubedir}'
     stdout, stderr = runc(cmd)
