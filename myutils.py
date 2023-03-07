@@ -6,6 +6,8 @@ def runc(cmd, input=None):
     cmd_list = shlex.split(cmd)
     if isinstance(input, str):
         input = input.encode('utf-8')
+    elif isinstance(input, bytes):
+        input = input.decode('utf-8').encode('utf-8')
     result = subprocess.run(
         cmd_list,
         input=input,
