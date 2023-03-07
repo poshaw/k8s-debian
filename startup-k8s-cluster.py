@@ -13,7 +13,7 @@ from myutils import handle_error, runc
 logging.basicConfig(level=logging.INFO)
 
 user = getpass.getuser()
-password = getpass.getpass(prompt='Enter sudo password: ').encode('utf-8')
+password = getpass.getpass(prompt='Enter sudo password: ')
 print(f"Password type: {type(password)}")
 nodes = ['km1.lan', 'kw1.lan']
 CIDR = '10.100.0.0/16'
