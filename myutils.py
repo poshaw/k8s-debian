@@ -7,7 +7,9 @@ def runc(cmd, input=None):
     if isinstance(input, str):
         input = input.encode('utf-8')
     elif isinstance(input, bytes):
-        input = input.decode('utf-8').encode('utf-8')
+        pass
+    else:
+        input = None
     result = subprocess.run(
         cmd_list,
         input=input,
