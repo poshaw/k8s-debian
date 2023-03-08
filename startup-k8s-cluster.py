@@ -93,7 +93,7 @@ def worker_join_cluster(workers, join_command):
             logging.error(f'Error joining worker {worker} to the cluster: {stderr}')
         else:
             logging.info(f'Worker {worker} joined the cluster successfully.')
-        cmd = f'kubectl label nodes {worker} node-role.kubernetes.io/worker=\\"\\""'
+        cmd = f'kubectl label nodes {worker} node-role.kubernetes.io/worker=\\"\\"'
         stdout, stderr = runc(cmd)
     
 def setup_calico():
