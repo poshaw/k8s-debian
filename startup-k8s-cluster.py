@@ -14,7 +14,6 @@ logging.basicConfig(level=logging.INFO)
 
 user = getpass.getuser()
 password = getpass.getpass(prompt='Enter sudo password: ')
-print(f"Password type: {type(password)}")
 nodes = ['km1.lan', 'kw1.lan']
 CIDR = '10.100.0.0/16'
 kubedir = os.path.join(os.path.expanduser('~'), '.kube')
@@ -93,8 +92,14 @@ def worker_join_cluster(workers, join_command):
             logging.error(f'Error joining worker {worker} to the cluster: {stderr}')
         else:
             logging.info(f'Worker {worker} joined the cluster successfully.')
-        cmd = f'ssh {user}@{worker} "sudo -S kubectl label nodes {worker} node-role.kubernetes.io/worker=\\"\\""'
+        logging.info(f'Setting role to worker for {worker} to the cluster...')
+        node_name = worker.split(".")[0]
+        cmd = f'kubectl label nodes {node_name} node-role.kubernetes.io/worker=worker --overwrite'
         stdout, stderr = runc(cmd)
+        if stderr:
+            logging.error(f'Error setting role to worker for {worker}: {stderr}')
+        else:
+            logging.info(f'Worker {worker} labeled successfully.')
     
 def setup_calico():
     logging.info("Downloading calico.yaml for network config...")
@@ -143,6 +148,10 @@ def setup_calico():
 
     logging.info('Calico configuration applied successfully.')
         
+def setup_storage(server):
+    cmd = f'ssh {user}@{server} "sudo -S mkdir -p /mnt/cluster-storage"'
+    stdout, stderr = runc(cmd, input=password)
+
 def k8s_status():
     cmd = 'kubectl cluster-info'
     stdout, stderr = runc(cmd)
@@ -159,6 +168,7 @@ def main(args):
         join_command = runc('kubeadm token create --print-join-command')[0].strip()
         worker_join_cluster(nodes[1:], join_command)
         setup_calico()
+        setup_storage('kw1.lan')
         k8s_status()
     except FileNotFoundError as e:
         handle_error(__file__, e)
