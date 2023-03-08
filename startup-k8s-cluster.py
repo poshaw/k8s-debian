@@ -93,6 +93,8 @@ def worker_join_cluster(workers, join_command):
             logging.error(f'Error joining worker {worker} to the cluster: {stderr}')
         else:
             logging.info(f'Worker {worker} joined the cluster successfully.')
+        cmd = f'kubectl label nodes {worker} node-role.kubernetes.io/worker=\\"\\""'
+        stdout, stderr = runc(cmd)
     
 def setup_calico():
     logging.info("Downloading calico.yaml for network config...")
@@ -143,6 +145,9 @@ def setup_calico():
         
 def k8s_status():
     cmd = 'kubectl cluster-info'
+    stdout, stderr = runc(cmd)
+    logging.info(stdout)
+    cmd = 'kubectl get nodes'
     stdout, stderr = runc(cmd)
     logging.info(stdout)
     

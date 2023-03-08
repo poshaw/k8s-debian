@@ -1,0 +1,13 @@
+# postgresql ConfigMap
+# Prereq: namespace database already created
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-config
+data:
+  postgresql.conf: |
+    listen_addresses = '*'
+    max_connections = 100
+  pg_hba.conf: |
+    host all all all md5
