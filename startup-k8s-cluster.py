@@ -3,12 +3,13 @@
 
 import getpass
 import logging
+from myutils import handle_error, runc
 import os
 import re
 import shutil
 import subprocess
 import sys
-from myutils import handle_error, runc
+import time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,8 +19,6 @@ nodes = ['km1.lan', 'kw1.lan']
 CIDR = '10.100.0.0/16'
 kubedir = os.path.join(os.path.expanduser('~'), '.kube')
 kubeconf = os.path.join(os.path.expanduser('~'), '.kube', 'config')
-yamldir = os.path.join(os.path.expanduser('~'), 'yaml')
-calico = os.path.join(yamldir, 'calico.yaml')
 
 def reset_cluster(workers):
     logging.info('Resetting K8S cluster...')
@@ -102,45 +101,7 @@ def worker_join_cluster(workers, join_command):
             logging.info(f'Worker {worker} labeled successfully.')
     
 def setup_calico():
-    logging.info("Downloading calico.yaml for network config...")
-    if not os.path.exists(yamldir):
-        os.mkdir(yamldir)
-
-    calico_url = 'https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml'
-    calico_file = os.path.join(yamldir, 'calico.yaml')
-    backup_file = calico_file + '_bak'
-
-    cmd = f'curl --fail --silent --show-error --location --output {calico_file} {calico_url}'
-    stdout, stderr = runc(cmd)
-    if stderr:
-        logging.error(f'Error downloading calico.yaml: {stderr}')
-        return
-    logging.info("Calico.yaml download successful.")
-
-    try:
-        shutil.copyfile(calico_file, backup_file)
-    except (FileNotFoundError, PermissionError) as e:
-        logging.error(f'Error creating backup file: {e}')
-        return
-
-    with open(calico_file, 'r') as f:
-        lines = f.readlines()
-
-    # Regex for a valid ipv4 address
-    validip = r"(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])"
-    i = 0
-    while i < len(lines):
-        if 'CALICO_IPV4POOL_CIDR' in lines[i]:
-            lines[i] = lines[i].replace('# ','')
-            lines[i+1] = lines[i+1].replace('# ','')
-            lines[i+1] = re.sub(validip, CIDR[:-3], lines[i+1])
-            break
-        i += 1
-
-    with open(calico_file, 'w') as file:
-        file.writelines(lines)
-
-    cmd_apply = f'kubectl apply -f {calico_file}'
+    cmd_apply = f'kubectl apply -f config/01-calico.yaml'
     stdout, stderr = runc(cmd_apply)
     if stderr:
         logging.error(f'Error applying calico configuration: {stderr}')
@@ -156,11 +117,21 @@ def k8s_status():
     cmd = 'kubectl cluster-info'
     stdout, stderr = runc(cmd)
     logging.info(stdout)
+    # loop until all nodes are ready or timeout (5 min) occurs
+    timeout = 300
+    start_time = time.time()
     cmd = 'kubectl get nodes'
-    stdout, stderr = runc(cmd)
-    logging.info(stdout)
+    while True:
+        stdout, stderr = runc(cmd)
+        lines = stdout.strip().split("\n")
+        not_ready_nodes = [line for line in lines[1:] if "NotReady" in line]
+        if not_ready_nodes:
+            logging.info(f"{len(not_ready_nodes)} node(s) not ready yet: {', '.join(not_ready_nodes)}")
+            time.sleep(5)
+        else:
+            logging.info("All nodes are ready!")
+            break
     
-
 def main(args):
     try:
         reset_cluster(nodes[1:])
