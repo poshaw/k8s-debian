@@ -101,8 +101,8 @@ def worker_join_cluster(workers, join_command):
             logging.info(f'Worker {worker} labeled successfully.')
     
 def setup_calico():
-    cmd_apply = f'kubectl apply -f config/01-calico.yaml'
-    stdout, stderr = runc(cmd_apply)
+    cmd = f'kubectl apply -f config/01-calico.yaml'
+    stdout, stderr = runc(cmd)
     if stderr:
         logging.error(f'Error applying calico configuration: {stderr}')
         return

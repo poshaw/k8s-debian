@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Confirm before shutting down the cluster
-read -p "Are you sure you want to shut down the cluster? (y/n) " -r
-echo
-if [[ ! $REPLY =~ ^[Yy][Ee]?[Ss]?$ ]]; then
+read -rp "Are you sure you want to shut down the cluster? (Y/n) " input
+input=${input:-Y}
+if [[ ! $input =~ ^[Yy]|^$ ]]; then
     echo "Aborting shutdown."
     exit 0
 fi
